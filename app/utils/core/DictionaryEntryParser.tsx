@@ -1,63 +1,13 @@
-import { format } from 'path';
 import React from 'react';
+
+import { puncPatterns, glossPatterns } from './ModelPatterns';
 
 export class DictionaryEntryParser {
   private subentries: Subentries[] = [];
   private contexts: Context[] = [];
 
-  private static PunctuationPatterns = {
-    boldMatcher: { 
-      rgx: /(?:\{b\})([a-zA-Z\s]+)(?:\{\\\/b\})/g,
-      replacement: "$1",
-      tag: 'span',
-      class: 'font-bold', 
-    },
-    boldColonMatcher: { 
-      rgx: /(\{bc\})/g,
-      replacement: ": ",
-      tag: 'span', 
-      class: 'font-bold', 
-    },
-    // TODO: Add class prop when defined
-    subscriptMatcher: { 
-      rgx: /(?:\{inf\})([a-zA-Z\s]+)(?:\{\\\/inf\})/g,
-      replacement: "$1",
-      tag: 'span',
-      class: ''
-    },
-    italicsMatcher: {
-      rgx: /(?:\{it\})([a-zA-Z\s]+)(?:\{\\\/it\})/g,
-      replacement: "$1", 
-      tag: 'em',
-      class: ''
-    },
-    leftDoubleQuoteMatcher: {
-      rgx: /(\{ldquo\})/g,
-      replacement: '\u{201C}',
-      tag: '',
-      class: ''
-    },
-    rightDoubleQuoteMatcher: {
-      rgx: /(\{rdquo\})/g,
-      replacement: '\u{201D}',
-      tag: '',
-      class: ''
-    },
-    // TODO: Add class prop when defined
-    smallCapitalsMatcher: {
-      rgx: /(?:\{sc\})([a-zA-Z\s]+)(?:\{\\\/sc\})/g,
-      replacement: "$1",
-      tag: 'span',
-      class: '',
-    },
-    // TODO: Add class prop when defined
-    superscriptMatcher: {
-      rgx: /(?:\{sup\})([a-zA-Z\s]+(?:\{\\\/sup\}))/g,
-      replacement: "$1",
-      tag: 'span',
-      class: ''
-    },
-  }
+  private static PunctuationPatterns = puncPatterns;
+  private static GlossPaterns = glossPatterns;
 
   private constructor(payload: Array<Payload>) {
     for (let i = 0; i < payload.length; i++) {
@@ -76,7 +26,6 @@ export class DictionaryEntryParser {
     parser.parseContexts();
     const defGroups = DictionaryEntryParser.parseDefs(parser.contexts);
     const formattedDefGroups = defGroups.map(group => ({ id: group.id, defs: DictionaryEntryParser.formatDefGroups(group.defs) }));
-    console.log(formattedDefGroups[0].defs);
     // return formattedDefGroups;
   }
 
@@ -188,7 +137,7 @@ export class DictionaryEntryParser {
   }
 
   private static formatVerbalIllustration(val: string) {
-
+    console.log(val);
   }
 }
 
@@ -199,7 +148,9 @@ enum StrictDefLabels {
 }
 
 type SenseArray = Array<string | object>;
+
 type Context = { id: string, fn: string, defs: string[] };
+
 interface Def {
   vd?: string;
   sseq: Array<SenseArray>;

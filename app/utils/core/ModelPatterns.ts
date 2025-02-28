@@ -27,13 +27,13 @@ export const puncPatterns = {
     leftDoubleQuoteMatcher: {
       rgx: /(\{ldquo\})/g,
       replacement: '\u{201C}',
-      tag: '',
+      tag: 'span',
       class: ''
     },
     rightDoubleQuoteMatcher: {
       rgx: /(\{rdquo\})/g,
       replacement: '\u{201D}',
-      tag: '',
+      tag: 'span',
       class: ''
     },
     // TODO: Add class prop when defined

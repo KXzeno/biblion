@@ -34,7 +34,7 @@ export class DictionaryEntryParser {
     parser.parseContexts();
     const defGroups = DictionaryEntryParser.parseDefs(parser.contexts);
     const formattedDefGroups = defGroups.map(group => ({ id: group.id, defs: DictionaryEntryParser.formatDefGroups(group.defs) }));
-    // return formattedDefGroups;
+    return formattedDefGroups;
   }
 
   private parseContexts() {
@@ -44,7 +44,7 @@ export class DictionaryEntryParser {
           if (sense.vd) {
             const parsedDef = this.parseSenses({ vd: sense.vd, sseq: sense.sseq });
             if (entry.id === this.contexts[this.contexts.length - 1].id) {
-              this.contexts[this.contexts.length - 1].defs.push(parsedDef);
+              this.contexts[this.contexts.length - 1].defs.push(...parsedDef);
             } else {
               this.contexts.push({ id: entry.id, fn: entry.function, defs: parsedDef });
             }
@@ -146,9 +146,9 @@ export class DictionaryEntryParser {
     for (let i = 0; i < inner.length; i++) {
       const dt = inner[i];
       switch (dt[0]) {
-        case StrictDefLabels.Text: DictionaryEntryParser.formatText(dt[1]); break;
-        case StrictDefLabels.UsageNotes: DictionaryEntryParser.formatUsageNote(dt[1]); break;
-        case StrictDefLabels.VerbalIllustration: DictionaryEntryParser.formatVerbalIllustration(dt[1]); break;
+        case StrictDefLabels.Text: formattedVal.push(DictionaryEntryParser.formatText(dt[1])); break;
+        case StrictDefLabels.UsageNotes: formattedVal.push(DictionaryEntryParser.formatUsageNote(dt[1])); break;
+        case StrictDefLabels.VerbalIllustration: formattedVal.push(DictionaryEntryParser.formatVerbalIllustration(dt[1])); break;
       }
     }
     return <p>[...formattedVal]</p>;

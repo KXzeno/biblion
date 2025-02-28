@@ -132,12 +132,12 @@ export class DictionaryEntryParser {
       if (match) {
         const newVal = val.replaceAll(matcher.rgx, matcher.replacement);
         const Tag = matcher.tag as keyof React.JSX.IntrinsicElements;
-        formattedVals.push(<Tag className={matcher.class}>{newVal}</Tag>);
+        formattedVals.push(<Tag key={crypto.randomUUID()} className={matcher.class}>{newVal}</Tag>);
       } else {
-        formattedVals.push(<>{val}</>);
+        formattedVals.push(<span key={crypto.randomUUID()}>{val}</span>);
       }
     }
-    return <p>[...formattedVals]</p>;
+    return <div key={crypto.randomUUID()}>{[...formattedVals]}</div>;
   }
 
   private static formatUsageNote(val: Array<string>) {
@@ -151,7 +151,7 @@ export class DictionaryEntryParser {
         case StrictDefLabels.VerbalIllustration: formattedVal.push(DictionaryEntryParser.formatVerbalIllustration(dt[1])); break;
       }
     }
-    return <p>[...formattedVal]</p>;
+    return <div key={crypto.randomUUID()}>{[...formattedVal]}</div>;
   }
 
   private static formatVerbalIllustration(val: Array<object>) {
@@ -166,9 +166,9 @@ export class DictionaryEntryParser {
               if (match) {
                 const newVal = val.replaceAll(matcher.rgx, matcher.replacement);
                 const Tag = matcher.tag as keyof React.JSX.IntrinsicElements;
-                formattedVals.push(<Tag className={matcher.class}>{newVal}</Tag>);
+                formattedVals.push(<Tag key={crypto.randomUUID()} className={matcher.class}>{newVal}</Tag>);
               } else {
-                formattedVals.push(<>{val}</>);
+                formattedVals.push(<span key={crypto.randomUUID()}>{val}</span>);
               }
             }
             break;
@@ -181,14 +181,14 @@ export class DictionaryEntryParser {
         }
       }
     }
-    return <p>[...formattedVals]</p>;
+    return <div key={crypto.randomUUID()}>{[...formattedVals]}</div>;
   }
 
   private static formatAttributionOfQuote(val: { auth: string } | { source: string }) {
     if (DictionaryEntryParser.isAuth(val)) {
-      return <span>{`— ${val.auth}`}</span>;
+      return <span key={crypto.randomUUID()}>{`— ${val.auth}`}</span>;
     } 
-    return <span>{`— ${val.source}`}</span>;
+    return <span key={crypto.randomUUID()}>{`— ${val.source}`}</span>;
   }
 
   private static isAuth(token: { auth: string } | { source: string }): token is { auth: string } {

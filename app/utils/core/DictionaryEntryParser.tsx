@@ -140,8 +140,18 @@ export class DictionaryEntryParser {
     return <p>[...formattedVals]</p>;
   }
 
-  private static formatUsageNote(val: string) {
-
+  private static formatUsageNote(val: Array<string>) {
+    const formattedVal = [];
+    const inner = val[0];
+    for (let i = 0; i < inner.length; i++) {
+      const dt = inner[i];
+      switch (dt[0]) {
+        case StrictDefLabels.Text: DictionaryEntryParser.formatText(dt[1]); break;
+        case StrictDefLabels.UsageNotes: DictionaryEntryParser.formatUsageNote(dt[1]); break;
+        case StrictDefLabels.VerbalIllustration: DictionaryEntryParser.formatVerbalIllustration(dt[1]); break;
+      }
+    }
+    return <p>[...formattedVal]</p>;
   }
 
   private static formatVerbalIllustration(val: Array<object>) {

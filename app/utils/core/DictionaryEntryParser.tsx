@@ -15,7 +15,7 @@ export class DictionaryEntryParser {
   private contexts: Context[] = [];
 
   private static PunctuationPatterns = puncPatterns;
-  private static MarkPaterns = markPatterns;
+  private static MarkPatterns = markPatterns;
 
   private constructor(payload: Array<Payload>) {
     for (let i = 0; i < payload.length; i++) {
@@ -126,13 +126,13 @@ export class DictionaryEntryParser {
   }
 
   private static formatText(val: string) {
-    let formattedVals = [];
+    const formattedVals = [];
     for (const [, matcher] of Object.entries(DictionaryEntryParser.PunctuationPatterns)) {
       const match = val.matchAll(matcher.rgx);
       if (match) {
-        val = val.replaceAll(matcher.rgx, matcher.replacement);
+        const newVal = val.replaceAll(matcher.rgx, matcher.replacement);
         const Tag = matcher.tag as keyof React.JSX.IntrinsicElements;
-        formattedVals.push(<Tag className={matcher.class}>{val}</Tag>);
+        formattedVals.push(<Tag className={matcher.class}>{newVal}</Tag>);
       } else {
         formattedVals.push(<>{val}</>);
       }
@@ -144,9 +144,44 @@ export class DictionaryEntryParser {
 
   }
 
-  private static formatVerbalIllustration(val: string) {
+  private static formatVerbalIllustration(val: Array<object>) {
+    const formattedVals = [];
     for (let i = 0; i < val.length; i++) {
-      console.log(val[i]);
+      const visEntries = Object.entries(val[i]);
+      for (const [id, val] of visEntries) {
+        switch (id) {
+          case StrictDefMarkLabels.Text: {
+            for (const [, matcher] of Object.entries(DictionaryEntryParser.MarkPatterns)) {
+              const match = val.matchAll(matcher.rgx);
+              if (match) {
+                const newVal = val.replaceAll(matcher.rgx, matcher.replacement);
+                const Tag = matcher.tag as keyof React.JSX.IntrinsicElements;
+                formattedVals.push(<Tag className={matcher.class}>{newVal}</Tag>);
+              } else {
+                formattedVals.push(<>{val}</>);
+              }
+            }
+            break;
+          }
+          case StrictDefMarkLabels.AttributionOfQuote: {
+             const formatted = DictionaryEntryParser.formatAttributionOfQuote(val as { auth: string } | { source: string });
+             formattedVals.push(formatted);
+             break;
+          }
+        }
+      }
     }
+    return <p>[...formattedVals]</p>;
+  }
+
+  private static formatAttributionOfQuote(val: { auth: string } | { source: string }) {
+    if (DictionaryEntryParser.isAuth(val)) {
+      return <span>{`— ${val.auth}`}</span>;
+    } 
+    return <span>{`— ${val.source}`}</span>;
+  }
+
+  private static isAuth(token: { auth: string } | { source: string }): token is { auth: string } {
+    return (token as { auth: string }).auth !== undefined && (token as { auth: string }).auth !== null;
   }
 }

@@ -1,13 +1,21 @@
 import React from 'react';
 
-import { puncPatterns, glossPatterns } from './ModelPatterns';
+import { puncPatterns, markPatterns } from './ModelPatterns';
+import {
+  StrictDefLabels,
+  StrictDefMarkLabels,
+  type Context,
+  type Def,
+  type Payload,
+  type Subentries,
+} from './types/DictionaryEntryParser.types';
 
 export class DictionaryEntryParser {
   private subentries: Subentries[] = [];
   private contexts: Context[] = [];
 
   private static PunctuationPatterns = puncPatterns;
-  private static GlossPaterns = glossPatterns;
+  private static MarkPaterns = markPatterns;
 
   private constructor(payload: Array<Payload>) {
     for (let i = 0; i < payload.length; i++) {
@@ -137,39 +145,8 @@ export class DictionaryEntryParser {
   }
 
   private static formatVerbalIllustration(val: string) {
-    console.log(val);
+    for (let i = 0; i < val.length; i++) {
+      console.log(val[i]);
+    }
   }
-}
-
-enum StrictDefLabels {
-  Text = 'text',
-  VerbalIllustration = 'vis',
-  UsageNotes = 'uns',
-}
-
-type SenseArray = Array<string | object>;
-
-type Context = { id: string, fn: string, defs: string[] };
-
-interface Def {
-  vd?: string;
-  sseq: Array<SenseArray>;
-}
-
-interface Payload {
-  meta: {
-    id: string;
-    stems: Array<string>;
-  }
-  fl: string;
-  shortdef: Array<string>;
-  def: Array<object>;
-}
-
-interface Subentries {
-  id: string;
-  variants: string[];
-  function: string;
-  shortdef: Array<string>;
-  def: Array<object>;
 }

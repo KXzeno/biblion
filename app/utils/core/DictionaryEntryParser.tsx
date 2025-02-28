@@ -130,47 +130,56 @@ export class DictionaryEntryParser {
     for (const [, matcher] of Object.entries(DictionaryEntryParser.PunctuationPatterns)) {
       const match = val.matchAll(matcher.rgx);
       if (match) {
-        const newVal = val.replaceAll(matcher.rgx, matcher.replacement);
+        const newVal = val = val.replaceAll(matcher.rgx, matcher.replacement);
+        // console.log(newVal);
         const Tag = matcher.tag as keyof React.JSX.IntrinsicElements;
         formattedVals.push(<Tag key={crypto.randomUUID()} className={matcher.class}>{newVal}</Tag>);
       } else {
         formattedVals.push(<span key={crypto.randomUUID()}>{val}</span>);
       }
     }
-    return <div key={crypto.randomUUID()}>{[...formattedVals]}</div>;
+    return <div key={crypto.randomUUID()}>{formattedVals[formattedVals.length - 1]}</div>;
   }
 
   private static formatUsageNote(val: Array<string>) {
-    const formattedVal = [];
+    const formattedVals = [];
     const inner = val[0];
     for (let i = 0; i < inner.length; i++) {
       const dt = inner[i];
       switch (dt[0]) {
-        case StrictDefLabels.Text: formattedVal.push(DictionaryEntryParser.formatText(dt[1])); break;
-        case StrictDefLabels.UsageNotes: formattedVal.push(DictionaryEntryParser.formatUsageNote(dt[1])); break;
-        case StrictDefLabels.VerbalIllustration: formattedVal.push(DictionaryEntryParser.formatVerbalIllustration(dt[1])); break;
+        case StrictDefLabels.Text: formattedVals.push(DictionaryEntryParser.formatText(dt[1])); break;
+        case StrictDefLabels.UsageNotes: formattedVals.push(DictionaryEntryParser.formatUsageNote(dt[1])); break;
+        case StrictDefLabels.VerbalIllustration: formattedVals.push(DictionaryEntryParser.formatVerbalIllustration(dt[1])); break;
       }
     }
-    return <div key={crypto.randomUUID()}>{[...formattedVal]}</div>;
+    return <div key={crypto.randomUUID()}>{formattedVals[formattedVals.length - 1]}</div>;
   }
 
   private static formatVerbalIllustration(val: Array<object>) {
     const formattedVals = [];
     for (let i = 0; i < val.length; i++) {
       const visEntries = Object.entries(val[i]);
-      for (const [id, val] of visEntries) {
+      for (let [id, val] of visEntries) {
         switch (id) {
           case StrictDefMarkLabels.Text: {
-            for (const [, matcher] of Object.entries(DictionaryEntryParser.MarkPatterns)) {
+            const tmp = [];
+            const PunctuationAndMarkPatterns = {
+              ...DictionaryEntryParser.PunctuationPatterns, 
+              ...DictionaryEntryParser.MarkPatterns
+            };
+
+            for (const [, matcher] of Object.entries(PunctuationAndMarkPatterns)) {
               const match = val.matchAll(matcher.rgx);
               if (match) {
-                const newVal = val.replaceAll(matcher.rgx, matcher.replacement);
+                const newVal = val = val.replaceAll(matcher.rgx, matcher.replacement);
+                console.log(val);
                 const Tag = matcher.tag as keyof React.JSX.IntrinsicElements;
-                formattedVals.push(<Tag key={crypto.randomUUID()} className={matcher.class}>{newVal}</Tag>);
+                tmp.push(<Tag key={crypto.randomUUID()} className={matcher.class}>{newVal}</Tag>);
               } else {
-                formattedVals.push(<span key={crypto.randomUUID()}>{val}</span>);
+                tmp.push(<span key={crypto.randomUUID()}>{val}</span>);
               }
             }
+            formattedVals.push(tmp[tmp.length - 1]);
             break;
           }
           case StrictDefMarkLabels.AttributionOfQuote: {
@@ -181,7 +190,7 @@ export class DictionaryEntryParser {
         }
       }
     }
-    return <div key={crypto.randomUUID()}>{[...formattedVals]}</div>;
+    return <div key={crypto.randomUUID()}>{formattedVals[formattedVals.length - 1]}</div>;
   }
 
   private static formatAttributionOfQuote(val: { auth: string } | { source: string }) {

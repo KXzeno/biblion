@@ -17,7 +17,9 @@ export interface DefiningText {
   sense: Pick<DefiningText, 'dt'>,
 }
 
-export type SenseArray = Array<[label: string, dt: DefiningText]>;
+export type SenseArray = Array<Sense>;
+
+export type Sense = [label: string, dt: DefiningText];
 
 export type Context = { id: string, fn: string, defs: Def[] };
 
@@ -26,6 +28,8 @@ export interface Def {
   sseq: Array<SenseArray>;
 }
 
+// export type DefinitionCollection = Array<Array<Array<string | Array<DefiningText>>>>;
+export type DefinitionCollection = Array<Array<Array<string | DefiningText[] | React.ReactNode>>>;
 export interface Payload {
   meta: {
     id: string;

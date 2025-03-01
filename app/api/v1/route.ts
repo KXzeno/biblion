@@ -8,6 +8,16 @@ function makeWellFormed(parts: Array<string>) {
   return newParts;
 }
 
+async function getWordData(word: string) {
+  const apiKey = process.env.API_KEY;
+  const dictionaryEndpoint = process.env.ENDPOINT;
+  const req = `${dictionaryEndpoint}${word}?key=${apiKey}`;
+
+  const res = await fetch(req).then(res => res.json());
+
+  return res
+}
+
 export async function GET(req: Request) {
   // TODO: Cache ip addresses for rate limiting
   const isRateLimited = false;
@@ -19,9 +29,11 @@ export async function GET(req: Request) {
     clientIp = client[1];
   }
 
-  console.log(clientIp);
+  // console.log(clientIp);
 
   const msg = isRateLimited ? RateLimitActivation.ON : RateLimitActivation.OFF;
+
+  console.log(req.body);
 
   const parts = makeWellFormed([msg]);
   const blob = new Blob(parts, { type: 'text/plain' });
@@ -29,3 +41,9 @@ export async function GET(req: Request) {
   return new Response(blob);
 }
 
+export async function POST(req: Request) {
+  const word = await req.json();
+  const part = await getWordData(word);
+
+  return Response.json(part);
+}

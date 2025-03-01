@@ -180,12 +180,12 @@ export class DictionaryEntryParser {
         switch (id) {
           case StrictDefMarkLabels.Text: {
             const tmp = [];
-            const PunctuationAndMarkPatterns = {
+            const AllPatterns = {
               ...DictionaryEntryParser.PunctuationPatterns, 
-              ...DictionaryEntryParser.MarkPatterns
+              ...DictionaryEntryParser.MarkPatterns,
+              ...DictionaryEntryParser.CrossRefPatterns,
             };
-
-            for (const [, matcher] of Object.entries(PunctuationAndMarkPatterns)) {
+            for (const [, matcher] of Object.entries(AllPatterns)) {
               const match = val.matchAll(matcher.rgx);
               if (match) {
                 const newVal = val = val.replaceAll(matcher.rgx, matcher.replacement);
@@ -206,7 +206,7 @@ export class DictionaryEntryParser {
         }
       }
     }
-    return <div key={crypto.randomUUID()}>{formattedVals[formattedVals.length - 1]}</div>;
+    return <div key={crypto.randomUUID()}>{...formattedVals}</div>;
   }
 
   private static formatAttributionOfQuote(val: { auth: string } | { source: string }) {

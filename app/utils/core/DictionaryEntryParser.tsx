@@ -12,6 +12,8 @@ import {
   type Def,
   type Payload,
   type Subentries,
+  type DefiningText,
+  type ParsedPayload,
 } from './types/DictionaryEntryParser.types';
 
 export class DictionaryEntryParser {
@@ -34,7 +36,7 @@ export class DictionaryEntryParser {
     }
   }
 
-  public static parse(payload: Array<Payload>) {
+  public static parse(payload: Array<Payload>): ParsedPayload {
     const parser = new DictionaryEntryParser(payload);
     parser.parseContexts();
     const defGroups = DictionaryEntryParser.parseDefs(parser.contexts);
@@ -63,7 +65,7 @@ export class DictionaryEntryParser {
     });
   }
 
-  private parseSenses(def: Def): string[] {
+  private parseSenses(def: Def): Array<DefiningText['dt']> {
     // console.log(def);
     const { sseq } = def;
     const volatileContext = [];
@@ -76,7 +78,7 @@ export class DictionaryEntryParser {
         const type = sense[0];
         const sdef = sense[1];
 
-        if (sdef.sn && (sdef.sn as string).match(/[a-z]|(?:\d\sa)/)) {
+        if (sdef.sn && sdef.sn.match(/[a-z]|(?:\d\sa)/)) {
           volatileContext.push(sdef.dt);
           continue;
         }
@@ -91,17 +93,17 @@ export class DictionaryEntryParser {
     return volatileContext;
   }
 
-  private static parseDefs(contexts: Context[]) {
-    const data = [];
+  private static parseDefs(contexts: Context[]): Array<Omit<Context, "fn">> {
+    const data: Omit<Context, "fn">[] = [];
     let section = [];
 
     if (contexts.length === 1) {
-      return [{ id: 1, defs: [...contexts[0].defs] }];
+      return [{ id: '1', defs: [...contexts[0].defs] }];
     }
 
     for (let i = 0; i < contexts.length; i++) {
       if (section.length !== 0) {
-        data.push({ id: data.length + 1, defs: section });
+        data.push({ id: `${data.length + 1}`, defs: section });
         section = [];
       }
       for (let j = 0; j < contexts[i].defs.length; j++) {
@@ -111,8 +113,8 @@ export class DictionaryEntryParser {
     return data;
   }
 
-  private static formatDefGroups(groups: any) {
-    const formatted = [];
+  private static formatDefGroups(groups: Def[]): React.ReactNode[] {
+    let formatted: Array<[string, React.ReactNode]> = [];
     (groups as any[]).map(group => {
       for (let i = 0; i < group.length; i++) {
         const arr = [];
@@ -124,12 +126,12 @@ export class DictionaryEntryParser {
               case StrictDefLabels.UsageNotes: val = DictionaryEntryParser.formatUsageNote(val); break;
               case StrictDefLabels.VerbalIllustration: val = DictionaryEntryParser.formatVerbalIllustration(val); break;
             }
-            arr.push(val);
+            arr.push(val as React.ReactNode);
             continue;
           }
-          arr.push(val);
+          arr.push(val as string);
         }
-        formatted.push(arr);
+        formatted = formatted ? [...formatted, (arr as [string, React.ReactNode])] : [arr as [string, React.ReactNode]];
       }
     });
     return formatted;
@@ -156,9 +158,9 @@ export class DictionaryEntryParser {
     return <div key={crypto.randomUUID()}>{formattedVals[formattedVals.length - 1]}</div>;
   }
 
-  private static formatUsageNote(val: Array<string>) {
+  private static formatUsageNote(val: Array<DefiningText>) {
     const formattedVals = [];
-    const inner = val[0];
+    const inner = Object.values(val[0]);
     for (let i = 0; i < inner.length; i++) {
       const dt = inner[i];
       switch (dt[0]) {
@@ -170,7 +172,7 @@ export class DictionaryEntryParser {
     return <div key={crypto.randomUUID()}>{formattedVals[formattedVals.length - 1]}</div>;
   }
 
-  private static formatVerbalIllustration(val: Array<object>) {
+  private static formatVerbalIllustration(val: Array<DefiningText>) {
     const formattedVals = [];
     for (let i = 0; i < val.length; i++) {
       const visEntries = Object.entries(val[i]);

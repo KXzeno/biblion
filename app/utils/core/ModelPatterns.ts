@@ -89,3 +89,36 @@ export const puncPatterns = {
       class: "",
     }
   };
+
+  export const crossRefPatterns = {
+    autoLinkMatcher: {
+      rgx: /(?:\{a_link\|)([\w\s\d\:]+){1}(?:\})/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    directLinkMatcher: {
+      rgx: /(?:\{d_link\|)([\w\s\d\:]+){1}(?:\|)([\w\s\d\:]+)?(?:\})/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    italicizedLinkMatcher: {
+      rgx: /(?:\{i_link\|)([\w\s\d\:]+){1}(?:\|)([\w\s\d\:]+)?(?:\})/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    etymologyLinkMatcher: {
+      rgx: /(?:\{et_link\|)([\w\s\d\:]+){1}(?:\|)([\w\s\d\:]+)?(?:\})/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    synonymousCrossRefMatcher: {
+      rgx: /(?:\{sx\|)([\w\s\d\:]+){1}(?:\|)([\w\s\d\:]+)?(?:\|)([\d\w\s\d\:]+)?(?:\})/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    }
+  }

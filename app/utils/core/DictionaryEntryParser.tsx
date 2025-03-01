@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { puncPatterns, markPatterns } from './ModelPatterns';
+import { 
+  puncPatterns, 
+  markPatterns,
+  crossRefPatterns,
+} from './ModelPatterns';
 import {
   StrictDefLabels,
   StrictDefMarkLabels,
@@ -16,6 +20,7 @@ export class DictionaryEntryParser {
 
   private static PunctuationPatterns = puncPatterns;
   private static MarkPatterns = markPatterns;
+  private static CrossRefPatterns = crossRefPatterns;
 
   private constructor(payload: Array<Payload>) {
     for (let i = 0; i < payload.length; i++) {
@@ -127,7 +132,12 @@ export class DictionaryEntryParser {
 
   private static formatText(val: string) {
     const formattedVals = [];
-    for (const [, matcher] of Object.entries(DictionaryEntryParser.PunctuationPatterns)) {
+    const PunctuationAndCrossRefPatterns = {
+      ...DictionaryEntryParser.PunctuationPatterns,
+      ...DictionaryEntryParser.CrossRefPatterns,
+    }
+
+    for (const [, matcher] of Object.entries(PunctuationAndCrossRefPatterns)) {
       const match = val.matchAll(matcher.rgx);
       if (match) {
         const newVal = val = val.replaceAll(matcher.rgx, matcher.replacement);
@@ -172,7 +182,6 @@ export class DictionaryEntryParser {
               const match = val.matchAll(matcher.rgx);
               if (match) {
                 const newVal = val = val.replaceAll(matcher.rgx, matcher.replacement);
-                console.log(val);
                 const Tag = matcher.tag as keyof React.JSX.IntrinsicElements;
                 tmp.push(<Tag key={crypto.randomUUID()} className={matcher.class}>{newVal}</Tag>);
               } else {

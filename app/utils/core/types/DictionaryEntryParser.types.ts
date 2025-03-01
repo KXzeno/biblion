@@ -11,9 +11,15 @@ export enum StrictDefMarkLabels {
   Source = 'source',
 }
 
-export type SenseArray = Array<string | object>;
+export interface DefiningText {
+  sn: string,
+  dt: Def,
+  sense: Pick<DefiningText, 'dt'>,
+}
 
-export type Context = { id: string, fn: string, defs: string[] };
+export type SenseArray = Array<[label: string, dt: DefiningText]>;
+
+export type Context = { id: string, fn: string, defs: Def[] };
 
 export interface Def {
   vd?: string;
@@ -27,7 +33,7 @@ export interface Payload {
   }
   fl: string;
   shortdef: Array<string>;
-  def: Array<object>;
+  def: Array<Def>;
 }
 
 export interface Subentries {
@@ -35,5 +41,7 @@ export interface Subentries {
   variants: string[];
   function: string;
   shortdef: Array<string>;
-  def: Array<object>;
+  def: Array<Def>;
 }
+
+export type ParsedPayload = Array<{ id: string, defs: Array<[string, React.ReactNode]>}>

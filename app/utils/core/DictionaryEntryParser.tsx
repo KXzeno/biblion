@@ -40,7 +40,7 @@ export class DictionaryEntryParser {
     const parser = new DictionaryEntryParser(payload);
     parser.parseContexts();
     const defGroups = DictionaryEntryParser.parseDefs(parser.contexts);
-    const formattedDefGroups = defGroups.map(group => ({ id: group.id, defs: DictionaryEntryParser.formatDefGroups(group.defs) }));
+    const formattedDefGroups = defGroups.map(group => ({ id: group.id, defs: DictionaryEntryParser.formatDefGroups(group.defs) })) as ParsedPayload;
     return formattedDefGroups;
   }
 

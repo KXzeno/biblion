@@ -48,7 +48,7 @@ export class DictionaryEntryParser {
         entry.def.forEach(sense => { 
           if (sense.vd) {
             const parsedDef = this.parseSenses({ vd: sense.vd, sseq: sense.sseq });
-            if (entry.id === this.contexts[this.contexts.length - 1].id) {
+            if (this.contexts.length > 0 && entry.id === this.contexts[this.contexts.length - 1].id) {
               this.contexts[this.contexts.length - 1].defs.push(...parsedDef);
             } else {
               this.contexts.push({ id: entry.id, fn: entry.function, defs: parsedDef });
@@ -94,6 +94,11 @@ export class DictionaryEntryParser {
   private static parseDefs(contexts: Context[]) {
     const data = [];
     let section = [];
+
+    if (contexts.length === 1) {
+      return [{ id: 1, defs: [...contexts[0].defs] }];
+    }
+
     for (let i = 0; i < contexts.length; i++) {
       if (section.length !== 0) {
         data.push({ id: data.length + 1, defs: section });

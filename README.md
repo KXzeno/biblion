@@ -1,4 +1,5 @@
-<h1 align='center'>Word Inculcator</h1>
+<h1 align="center"><p>Biblion</p></h1>
+<h3 align="center"><p>Word Inculcator and Vocabulary List Creator</p></h3>
 
-### Hitlist
-1. Follow [formatting](https://dictionaryapi.com/products/json#sec-2.fmttokens) principles of Merriam-Webster  and create a converter class
+---
+

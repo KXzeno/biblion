@@ -158,20 +158,30 @@ export class DictionaryEntryParser {
     return volatileContext as Array<Def>;
   }
 
-
+  /**
+   * Parses instance contexts and map them 
+   * as an enumerable with indexes as ids
+   *
+   * @param contexts - an instance's contexts
+   * @returns an ID'd enumerable of contexts
+   */
   private static parseDefs(contexts: Context[]): Array<Omit<Context, "fn">> {
     const data: Omit<Context, "fn">[] = [];
     let section = [];
 
+    // If with one context, do selective transform and return it
     if (contexts.length === 1) {
       return [{ id: '1', defs: [...contexts[0].defs] }];
     }
 
     for (let i = 0; i < contexts.length; i++) {
+      // If sections is populated, append to data output
+      // TODO: Consider logical inutility, doesn't need to be array?
       if (section.length !== 0) {
         data.push({ id: `${data.length + 1}`, defs: section });
         section = [];
       }
+      // Iterate over context definition and push to sections
       for (let j = 0; j < contexts[i].defs.length; j++) {
         section.push(contexts[i].defs[j]);
       }

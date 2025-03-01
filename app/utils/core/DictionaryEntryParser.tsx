@@ -295,7 +295,8 @@ export class DictionaryEntryParser {
       // Reference entries for an iterable
       const visEntries = Object.entries(val[i]);
 
-      for (let [id, val] of visEntries) {
+      for (const [id, immutableVal] of visEntries) {
+        let val = immutableVal;
         // Parse types of text or quote attributions 
         // and respectively transform via formatter methods
         switch (id) {

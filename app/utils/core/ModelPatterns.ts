@@ -120,5 +120,36 @@ export const puncPatterns = {
       replacement: "$1",
       tag: "span",
       class: "",
-    }
+    },
+    directionalCrossRefMatcher: {
+      rgx: /(?:\{dxt\|)([\w\s\d\:]+){1}(?:\|)([\w\s\d\:]+)?(?:\|)([\d\w\s\d\:]+)?(?:\})/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    /** Grouping Tokens*/
+    introductoryGroupMatcher: {
+      rgx: /(?:\{dx\}([\w\s\d\:\{\}\|]+)(?:\{\/dx\}))/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    parentheticalIntroductoryGroupMatcher: {
+      rgx: /(?:\{dx_def\}([\w\s\d\:\{\}\|]+)(?:\{\/dx_def\}))/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    directionalIntroductoryGroupMatcher: {
+      rgx: /(?:\{dx_ety\}([\w\s\d\:\{\}\|]+)(?:\{\/dx_ety\}))/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
+    moreMatcher: {
+      rgx: /(?:\{ma\}([\w\s\d\:\{\}\|]+)(?:\{\/ma\}))/g,
+      replacement: "$1",
+      tag: "span",
+      class: "",
+    },
   }

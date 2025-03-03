@@ -24,7 +24,7 @@ import {
  *
  * @author Kx
  */
-export class DictionaryEntryParser {
+export default class DictionaryEntryParser {
   // Nested values extracted from payload
   private subentries: Subentries[] = [];
   // Subentries divided into context form

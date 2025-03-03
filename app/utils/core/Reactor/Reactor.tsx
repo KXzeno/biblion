@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * The Reactor class creates strongly typed 
  * byproducts within React's ecosystem with the 
@@ -6,7 +8,66 @@
  * @author Kx
  */
 export default class Reactor {
-  constructor() {
+  private fn;
 
+  /**
+   * Instantiates with the reducer callback
+   *
+   * @param fn - the reducer callback
+   */
+  private constructor(fn: Function) {
+    this.fn = fn;
   }
+
+  /**
+   * Parses the function body for action types
+   *
+   * @returns **TODO**
+   */
+  private parseActionTypes(): string[] {
+    const fnString = this.fn.toString();
+
+    const params = fnString.match(/(?!\([\s]?)([\w\s\,]+)(?=[\s]?\))/);
+
+    if (params && params[0].split(/\,/).length !== 2) {
+      throw new Error('Arguments unfulfilled.');
+    }
+
+    let types: RegExpStringIterator<RegExpMatchArray> | string[] = fnString.matchAll(/(?!case\:\s\')([\w]+)(?=\':)/g);
+
+    try {
+      types = types.map(type => type[0]).toArray();
+      return types;
+    } catch (err) {
+      throw new Error(`Failed to parse types: ${err}`);
+    }
+  }
+
+  /**
+   * Customized reducer that automates static typing
+   *
+   * @param fn - the reducer callback
+   */
+  public static useReducer(fn: (state: object, action: { type: string }) => object) {
+    const reactor = new Reactor(fn);
+    let arr = ['what'];
+    const actionTypeArray: Array<string> = reactor.parseActionTypes();
+    // console.log(actionTypeArray);
+
+    // FIXME: Current problem is ActionTypes results to as never due to 
+    // RefArray holding strings, not string literals.
+    // 
+    // Create an enum or a positional list and parse the string for all the
+    // enum properties or list positions then do a literal construction via
+    // template string
+    type ActionTypes<T, RefArray extends string[], Indexer extends number[] = []> = Indexer['length'] extends RefArray['length'] ? 
+      Exclude<T, null> :
+      ActionTypes<T | RefArray[Indexer['length']], RefArray, [...Indexer, Indexer['length']]>;
+
+    // const types: ActionTypes<null, typeof actionTypeArray>;
+
+    // return [types, ''];
+  }
+
+  // Functions must have @internal comments, like /** @internal {opt} */
 }

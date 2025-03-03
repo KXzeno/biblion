@@ -3,8 +3,7 @@
 import React from 'react';
 
 import { queryWord } from '@/actions/query';
-import { DictionaryEntryParser } from '@/utils/core/DictionaryEntryParser';
-import { Payload } from '@/utils/core/types/DictionaryEntryParser.types';
+import DictionaryEntryParser, { type Payload } from '@/utils/core/DictionaryEnteryParser';
 
 const initialState = {
   msg: '',
@@ -16,7 +15,6 @@ export default function SearchBar() {
   return (
     <div>
       <input
-        value 
       />
     </div>
   );

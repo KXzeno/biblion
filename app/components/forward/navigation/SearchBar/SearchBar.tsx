@@ -1,12 +1,23 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 import { DefinitionsContext, DefinitionsDispatchContext } from '@/providers/DefinitionsProvider';
+import { ActionType } from './SearchBar.types';
 
 export default function SearchBar() {
   const { formState, reducState, formAction } = React.useContext(DefinitionsContext);
   const { dispatch } = React.useContext(DefinitionsDispatchContext);
+
+  const router = useRouter();
+
+  React.useEffect(() => {
+    dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
+    console.log(reducState.status);
+    console.log(reducState.CLIENT_CACHE);
+    console.log(reducState.rawData);
+  }, [formState]);
 
   return (
     <div className='flex flex-col w-screen h-screen border-gray-800 border-8 text-center'>
@@ -14,8 +25,8 @@ export default function SearchBar() {
         <form 
           action={formAction} 
           onSubmit={(e) => {
-            dispatch({ type: 'invalidate' });
-            dispatch({ type: 'query', payload: { input: reducState.input } });
+            dispatch({ type: ActionType.Query, payload: { ...reducState, input: reducState.input } });
+            dispatch({ type: ActionType.Invalidate });
             e.stopPropagation();
           }}
         >
@@ -25,8 +36,8 @@ export default function SearchBar() {
             value={reducState.input}
             onChange={(e) => {
               dispatch({
-                type: 'input',
-                payload: { input: e.target.value },
+                type: ActionType.Input,
+                payload: { ...reducState, input: e.target.value },
               });
             }}
             className='pl-2 h-5 outline-none'

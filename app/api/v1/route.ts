@@ -24,7 +24,7 @@ export async function GET(req: Request) {
 
   const headers = req.headers.entries();
   const client = headers.find(header => header[0] === 'x-forwarded-for');
-  let clientIp;
+  const clientIp;
   if (client) {
     clientIp = client[1];
   }

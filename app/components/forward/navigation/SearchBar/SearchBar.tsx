@@ -2,37 +2,11 @@
 
 import React from 'react';
 
-import { queryWord } from '@/actions/query';
-// import DictionaryEntryParser, { type Payload } from '@/utils/core/DictionaryEnteryParser';
-import type { ReducerState, ReducerAction } from './SearchBar.types';
-
-function reducer(state: ReducerState, action: ReducerAction) {
-  switch (action.type) {
-    case 'query': {
-      if (!action.payload) {
-        throw new Error('Payload empty.');
-      }
-
-      // const input = action.payload.input
-
-      return { ...state, input: '' };
-    }
-    case 'input': {
-      if (!action.payload) {
-        return { ...state };
-      }
-
-      return { ...state, input: action.payload.input };
-    }
-    case 'invalidate': {
-      return { ...state };
-    }
-  }
-}
+import { DefinitionsContext, DefinitionsDispatchContext } from '@/providers/DefinitionsProvider';
 
 export default function SearchBar() {
-  const [formState, formAction, ] = React.useActionState(queryWord, { msg: '', similar: [] });
-  const [reductState, dispatch] = React.useReducer<ReducerState, [ReducerAction]>(reducer, { input: '' });
+  const { formState, reducState, formAction } = React.useContext(DefinitionsContext);
+  const { dispatch } = React.useContext(DefinitionsDispatchContext);
 
   return (
     <div className='flex flex-col w-screen h-screen border-gray-800 border-8 text-center'>
@@ -41,21 +15,21 @@ export default function SearchBar() {
           action={formAction} 
           onSubmit={(e) => {
             dispatch({ type: 'invalidate' });
-            dispatch({ type: 'query', payload: { input: reductState.input } });
+            dispatch({ type: 'query', payload: { input: reducState.input } });
             e.stopPropagation();
           }}
         >
           <input
             placeholder='Search a word'
             name='word'
-            value={reductState.input}
+            value={reducState.input}
             onChange={(e) => {
               dispatch({
                 type: 'input',
                 payload: { input: e.target.value },
               });
             }}
-            className='pl-2 h-5'
+            className='pl-2 h-5 outline-none'
             autoComplete='off'
           />
         </form>

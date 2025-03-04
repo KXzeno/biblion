@@ -1,6 +1,6 @@
 'use server';
 
-import { z } from "zod";
+// import { z } from "zod";
 import { redirect } from "next/navigation";
 
 export async function queryWord(prevState: { msg: string }, formData: FormData) {
@@ -14,9 +14,11 @@ export async function queryWord(prevState: { msg: string }, formData: FormData) 
   }).then(res => res.json()).catch(() => success = false);
 
   if (!success || !word || wordData.length === 0 || typeof wordData[0] === 'string') {
+    if (!word) { return { msg: '', similar: [] }; }
+
     return { 
       msg: `${word.toString().toLowerCase()}`,
-      similar: wordData.filter(word => typeof word === 'string'),
+      similar: wordData.filter((word: string) => typeof word === 'string'),
     };
   }
 

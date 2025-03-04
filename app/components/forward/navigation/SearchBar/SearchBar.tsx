@@ -62,7 +62,7 @@ export default function SearchBar() {
         {formState.msg && 
         <>
           <p className='absolute -translate-y-12'>
-            {`Search for \'{formState.msg}\' failed.`}
+            {`Search for \'${formState.msg}\' failed.`}
           </p>
         </>
         }

@@ -22,12 +22,12 @@ export async function GET(req: Request) {
   // TODO: Cache ip addresses for rate limiting
   const isRateLimited = false;
 
-  const headers = req.headers.entries();
-  const client = headers.find(header => header[0] === 'x-forwarded-for');
-  const clientIp;
-  if (client) {
-    clientIp = client[1];
-  }
+  // const headers = req.headers.entries();
+  // const client = headers.find(header => header[0] === 'x-forwarded-for');
+  // let clientIp;
+  // if (client) {
+  //   clientIp = client[1];
+  // }
 
   // console.log(clientIp);
 

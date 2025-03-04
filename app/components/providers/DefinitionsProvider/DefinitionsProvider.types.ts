@@ -1,12 +1,19 @@
 import { SearchBarReducAction } from "@/components/forward/navigation";
+import { PayloadStatus } from "@/forward/navigation/SearchBar/SearchBar.types";
 
 export interface ContextData {
   formState: { 
-    msg: string, 
-    similar: string[]
+    msg: string;
+    similar: string[];
+    rawData: object[];
   },
   formAction: (payload: FormData) => void,
-  reducState: { input: string },
+  reducState: { 
+    input: string,
+    CLIENT_CACHE: Array<string>,
+    rawData: object[], 
+    status: PayloadStatus,
+  },
 }
 
 export interface DispatchContextData {

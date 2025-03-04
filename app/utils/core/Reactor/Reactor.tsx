@@ -24,8 +24,8 @@ export default class Reactor {
    *
    * @param fn - the reducer callback
    */
-  private constructor(fn: Function) {
-    this.fn = fn;
+  private constructor(/** fn: () => void */) {
+    // this.fn = fn;
   }
 
   /**

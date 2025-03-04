@@ -1,10 +1,29 @@
+export enum PayloadStatus {
+  SUCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  INACTIVE = 'INACTIVE',
+}
+
+export enum ActionType {
+  Input = 'input',
+  Invalidate = 'invalidate',
+  Query = 'query',
+  Inject = 'inject',
+}
+
 export interface ReducerState {
   input: string;
+  CLIENT_CACHE: string[];
+  rawData: object[];
+  status: PayloadStatus;
 }
 
 export interface ReducerAction {
-  type: 'input' | 'invalidate' | 'query';
+  type: ActionType;
   payload?: {
     input: string;
+    CLIENT_CACHE: string[];
+    rawData: object[];
+    status: PayloadStatus;
   }
 }

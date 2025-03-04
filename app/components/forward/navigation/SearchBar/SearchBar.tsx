@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 
 import { queryWord } from '@/actions/query';
-import DictionaryEntryParser, { type Payload } from '@/utils/core/DictionaryEnteryParser';
+// import DictionaryEntryParser, { type Payload } from '@/utils/core/DictionaryEnteryParser';
 import type { ReducerState, ReducerAction } from './SearchBar.types';
 
 function reducer(state: ReducerState, action: ReducerAction) {
@@ -14,7 +13,7 @@ function reducer(state: ReducerState, action: ReducerAction) {
         throw new Error('Payload empty.');
       }
 
-      const input = action.payload.input
+      // const input = action.payload.input
 
       return { ...state, input: '' };
     }
@@ -63,7 +62,7 @@ export default function SearchBar() {
         {formState.msg && 
         <>
           <p className='absolute -translate-y-12'>
-            Search for '{formState.msg}' failed.
+            {`Search for \'{formState.msg}\' failed.`}
           </p>
         </>
         }

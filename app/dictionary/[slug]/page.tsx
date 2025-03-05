@@ -1,7 +1,6 @@
 import React from 'react';
 
-import DictionaryPage from '@/components/main/DictionaryPage';
-import DefinitionsProvider from '@/components/providers/DefinitionsProvider';
+import Dictionary from '@/components/main/Dictionary';
 
 export default async function WordPage({
   params,
@@ -11,7 +10,7 @@ export default async function WordPage({
   const { slug } = await params;
 
   return (
-    <DictionaryPage word={slug} />
-  )
+    <Dictionary word={slug} />
+  );
 }
 

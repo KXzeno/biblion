@@ -34,7 +34,7 @@ function reducer(state: SearchBarReducState, action: SearchBarReducAction) {
   switch (action.type) {
     case ActionType.Query: {
       if (!action.payload) {
-        throw new Error('Payload empty.');
+        return { ...state, status: PayloadStatus.FAILED }
       }
 
       // const input = action.payload.input
@@ -43,7 +43,7 @@ function reducer(state: SearchBarReducState, action: SearchBarReducAction) {
         input: '',
         CLIENT_CACHE: [...state.CLIENT_CACHE as string[], state.input], 
         rawData: action.payload.rawData,
-        status: PayloadStatus.SUCESS,
+        status: PayloadStatus.SUCCESS,
       };
     }
     case ActionType.Input: {
@@ -55,6 +55,7 @@ function reducer(state: SearchBarReducState, action: SearchBarReducAction) {
     }
     case ActionType.Invalidate: {
       if (state.status === PayloadStatus.INACTIVE) {
+        // TODO: Add response to invalidation
         return { ...state };
       }
       return { ...state };

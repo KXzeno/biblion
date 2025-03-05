@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 import { DefinitionsContext, DefinitionsDispatchContext } from '@/providers/DefinitionsProvider';
-import { ActionType } from './SearchBar.types';
+import { ActionType, PayloadStatus } from './SearchBar.types';
 
 export default function SearchBar() {
   const { formState, reducState, formAction } = React.useContext(DefinitionsContext);
@@ -18,8 +18,10 @@ export default function SearchBar() {
       // dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
       const word = Object.values(formState.rawData[0])[0].toLowerCase();
       formState.rawData.shift();
-      const queryString = `${encodeURIComponent(JSON.stringify(formState.rawData))}`
-      router.push(`/dictionary/${word}?defs=${queryString}`);
+      if (reducState.status === PayloadStatus.SUCCESS) {
+        const queryString = `${encodeURIComponent(JSON.stringify(formState.rawData))}`
+        router.push(`/dictionary/${word}?defs=${queryString}`);
+      }
     }
   }, [formState.rawData]);
 
@@ -56,23 +58,23 @@ export default function SearchBar() {
         </>
         }
       </div>
-          <>
-            {formState.msg && formState.similar && 
-            <div className='flex self-center justify-center relative translate-y-34 w-screen h-64'>
-              <div className='absolute flex flex-col w-96 h-max translate-y-20'>
-                <span>Did you mean any of:</span> 
-                <div className='grid grid-cols-3 mt-8'>{formState.similar.map((pot: string) => {
-                  return (
-                    <p key={`${pot}`}>
-                      {pot}
-                    </p>
-                  );
-                })}
-                </div>
-              </div>
+      <>
+        {formState.msg && formState.similar && 
+        <div className='flex self-center justify-center relative translate-y-34 w-screen h-64'>
+          <div className='absolute flex flex-col w-96 h-max translate-y-20'>
+            <span>Did you mean any of:</span> 
+            <div className='grid grid-cols-3 mt-8'>{formState.similar.map((pot: string) => {
+              return (
+                <p key={`${pot}`}>
+                  {pot}
+                </p>
+              );
+            })}
             </div>
-            }
-          </>
+          </div>
+        </div>
+        }
+      </>
     </div>
   );
 }

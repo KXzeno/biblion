@@ -1,5 +1,5 @@
 export enum PayloadStatus {
-  SUCESS = 'SUCCESS',
+  SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
   INACTIVE = 'INACTIVE',
 }

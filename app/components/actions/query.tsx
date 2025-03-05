@@ -19,14 +19,14 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
     return { 
       msg: `${word.toString().toLowerCase()}`,
       similar: wordData.filter((word: string) => typeof word === 'string'),
-      rawData: wordData,
+      rawData: [{ target: word }, ...wordData],
     };
   }
 
   return { 
     msg: ``,
     similar: wordData.filter((word: string) => typeof word === 'string'),
-    rawData: [...wordData],
+    rawData: [{ target: word }, ...wordData],
   };
   // redirect(`/dictionary/${word.toString().toLowerCase()}`);
 }

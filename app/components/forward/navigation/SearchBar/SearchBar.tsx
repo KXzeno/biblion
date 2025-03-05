@@ -13,11 +13,14 @@ export default function SearchBar() {
   const router = useRouter();
 
   React.useEffect(() => {
-    dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
-    console.log(reducState.status);
-    console.log(reducState.CLIENT_CACHE);
-    console.log(reducState.rawData);
-  }, [formState]);
+    if (formState.rawData.length > 0) {
+      dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
+      const word = Object.values(formState.rawData[0])[0].toLowerCase();
+      formState.rawData.shift();
+      const queryString = `${encodeURIComponent(JSON.stringify(formState.rawData))}`
+      router.push(`/dictionary/${word}?defs=${queryString}`);
+    }
+  }, [formState.rawData]);
 
   return (
     <div className='flex flex-col w-screen h-screen border-gray-800 border-8 text-center'>

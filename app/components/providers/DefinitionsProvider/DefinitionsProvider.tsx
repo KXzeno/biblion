@@ -33,8 +33,8 @@ export const DefinitionsDispatchContext: React.Context<DispatchContextData> = Re
 function reducer(state: SearchBarReducState, action: SearchBarReducAction) {
   switch (action.type) {
     case ActionType.Query: {
-      if (!action.payload) {
-        return { ...state, status: PayloadStatus.FAILED }
+      if (!action.payload || action.payload.rawData.length === 0) {
+        return { ...state, input: '', status: PayloadStatus.FAILED }
       }
 
       // const input = action.payload.input

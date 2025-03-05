@@ -14,7 +14,8 @@ export default function SearchBar() {
 
   React.useEffect(() => {
     if (formState.rawData.length > 0) {
-      dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
+      /** State is not restored due to disparate component trees */
+      // dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
       const word = Object.values(formState.rawData[0])[0].toLowerCase();
       formState.rawData.shift();
       const queryString = `${encodeURIComponent(JSON.stringify(formState.rawData))}`

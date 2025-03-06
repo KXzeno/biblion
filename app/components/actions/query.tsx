@@ -3,16 +3,30 @@
 // import { z } from "zod";
 // import { redirect } from "next/navigation";
 
-export async function queryWord(prevState: { msg: string, similar: string[], rawData: object[] }, formData: FormData) {
+/**
+ * Server action for handling word querying form responses
+ *
+ * @param formData - the form data retrieved by user's input
+ * @param prevState - the previous / default state returned by this action
+ *
+ * @returns the newer state of this action
+ */
+export async function queryWord(prevState: { msg: string, similar: string[], rawData: object[] }, formData: FormData): Promise<typeof prevState> {
+  // Parses for the input with the name attribute 'word'
   const word = formData.get('word');
+
+  // Add safeguard to control flow
   if (word === null) {
     throw new Error('Null input.');
   }
 
+  // Initialize querying status for validation
   let success = true;
 
+  // Validate the user's input for queryable characters
   const isValid = validateWord(word.toString());
 
+  // Return an object with customized raw data if invalid
   if (isValid === false) {
     return {
       msg: '',
@@ -26,20 +40,28 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
     };
   }
 
+  // Send a request in local endpoint for querying word data
   const wordData = await fetch('https://biblion.karnovah.com/api/v1', {
     method: 'POST',
     body: JSON.stringify(word),
   }).then(res => { 
     return res.json();
-  }).catch(() => success = false);
+  }).catch(() => {
+    // On querying failure, update success
+    success = false
+  });
 
+  // Raw data should only by this stage if a custom error is known
   if (Object.keys(wordData).includes('rawData')) {
     return wordData;
   }
 
-  if (!success || !word || wordData.length === 0 || typeof wordData[0] === 'string') {
-    if (!word) { return { msg: '', similar: [], rawData: [{}] }; }
-
+  /** 
+  * No custom error suggests that the API is successful but 
+  * only returned similar inputs, which is implicitly represented
+  * by the data type of the first element in the response
+  */
+  if (typeof wordData[0] === 'string') {
     return { 
       msg: `${word.toString().toLowerCase()}`,
       similar: wordData.filter((word: string) => typeof word === 'string'),
@@ -47,6 +69,7 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
     };
   }
 
+  // At this stage, the request is unexceptionally fulfilled
   return { 
     msg: ``,
     similar: wordData.filter((word: string) => typeof word === 'string'),
@@ -55,6 +78,13 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
   // redirect(`/dictionary/${word.toString().toLowerCase()}`);
 }
 
+/**
+ * Utility function to validate input from form data
+ *
+ * @param word - the word to validate
+ * @returns true if only containing word
+ * characters and hiphens, otherwise false
+ */
 function validateWord(word: string): boolean {
   let onlyHiphensHaveMatched = true;
 

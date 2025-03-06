@@ -13,10 +13,11 @@ export default function SearchBar() {
   const router = useRouter();
 
   React.useEffect(() => {
-    if (formState.rawData.length === 0) {
+    if (formState.rawData.length < 2) {
       return;
     }
-    if (typeof formState.rawData[0] !== 'string') {
+    console.log(formState.rawData);
+    if (typeof formState.rawData[1] !== 'string') {
       /** State is not restored due to disparate component trees */
       dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
       const word = Object.values(formState.rawData[0])[0].toLowerCase();

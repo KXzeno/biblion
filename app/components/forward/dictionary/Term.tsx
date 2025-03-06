@@ -63,7 +63,7 @@ export default function Term({ term }: { term: string }): React.ReactNode {
           });
           return arr;
         }) :
-          'L'
+          {term}
       }
     </>
   )

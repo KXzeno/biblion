@@ -59,11 +59,20 @@ export default function Term({ term }: { term: string }): React.ReactNode {
           parsedNodes.map(nodes => {
           const arr: React.ReactNode[] = [];
           nodes.defs.forEach(node => {
-            arr.push(node[1]);
+            // FIXME: Not supposed to be conditional; means
+            // there are unparsed values. Check parser class
+            // to handle untyped senses such as "sseq" and
+            // unchecked labels such as "snote"
+            if (!(node[1] instanceof Array)) {
+              // FIXME: Object with keys 'cats' and 'intro' are
+              // read in the iterable. Must refactor parser
+              if (Object.keys(node[1] as object).includes('props')) {
+                arr.push(node[1]);
+              }
+            }
           });
           return arr;
-        }) :
-          {term}
+        }) : term
       }
     </>
   )

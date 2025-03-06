@@ -12,27 +12,41 @@ import {
 import { ActionType } from '@/forward/navigation/SearchBar/SearchBar.types';
 import type { Payload, ParsedPayload } from '@/utils/core/DictionaryEnteryParser';
 
+/**
+ * The core component for the dynamic dictionary route
+ *
+ * @param { term } - the slug or word
+ * @returns a component utilizing the mapped server-queried data
+ */
 export default function Term({ term }: { term: string }): React.ReactNode {
+  // Initialize state for storing the data parsed by DictionaryEntryParser class
   const [parsedNodes, setParsedNodes] = React.useState<ParsedPayload | null>(null);
-  const [payloadParsed, setPayloadParsed] = React.useState<boolean>(false);
-  // const router = useRouter();
 
+  // Initialize state for when payload is successfully parsed
+  const [payloadParsed, setPayloadParsed] = React.useState<boolean>(false);
+
+  // Extract reducer state
   const useDefinitionsContext = () => React.useContext(DefinitionsContext);
   const { reducState } = useDefinitionsContext();
 
+  // Extract dispatcher state
   const useDefinitionsDispatchContext = () => React.useContext(DefinitionsDispatchContext);
   const { dispatch } = useDefinitionsDispatchContext();
 
   React.useEffect(() => {
+    // Retrieve encoded server-queried data
     /** Session storage approach */
     const defsString = window.sessionStorage.getItem('injected');
 
+    // Terminate parsing logic if data is null
     if (defsString === null) {
       return;
     }
 
+    // Parse data as JSON
     const defs = JSON.parse(defsString);
 
+    // Update raw data with parsed definitions
     dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: defs } });
 
     /** @ignore
@@ -47,6 +61,8 @@ export default function Term({ term }: { term: string }): React.ReactNode {
      * console.log(defs);
      * console.log(reducState.rawData);
      */
+
+    // Parse the raw data array and update nodes and payload state
     const parsed = DictionaryEntryParser.parse(reducState.rawData as Payload[]);
     setParsedNodes(parsed as ParsedPayload);
     setPayloadParsed(true);
@@ -54,6 +70,7 @@ export default function Term({ term }: { term: string }): React.ReactNode {
 
   return (
     <>
+      { /* Map parsed nodes to elements, otherwise default to fallback */ }
       { 
         parsedNodes !== null ? 
           parsedNodes.map(nodes => {

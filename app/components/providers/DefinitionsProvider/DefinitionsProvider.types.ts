@@ -14,6 +14,7 @@ export interface ContextData {
     rawData: object[], 
     status: PayloadStatus,
   },
+  formStatePending: boolean;
 }
 
 export interface DispatchContextData {

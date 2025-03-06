@@ -5,7 +5,13 @@ import React from 'react';
 import DefinitionsProvider from '@/providers/DefinitionsProvider';
 import Term from '@/forward/dictionary';
 
-export default function DictionaryPage({ 
+/**
+ * Wrapper component to hold context
+ * 
+ * @param { word } - the slug
+ * @returns a contextual component
+ */
+export default function Dictionary({ 
   word,
 }: {
   word: string 

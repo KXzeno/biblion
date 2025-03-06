@@ -15,16 +15,21 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
   // Parses for the input with the name attribute 'word'
   const word = formData.get('word');
 
-  // Add safeguard to control flow
-  if (word === null) {
+  // Add safeguard and predicate
+  if (!isWord(word)) {
     throw new Error('Null input.');
   }
+
+  // Assert type as string
 
   // Initialize querying status for validation
   let success = true as boolean; // without type assertion, it is a literal(?)
 
   // Validate the user's input for queryable characters
-  const isValid = validateWord(word.toString());
+  const isValid = validateWord(word);
+
+  // Remove trailing whitespace
+
 
   // Return an object with customized raw data if invalid
   if (isValid === false) {
@@ -33,8 +38,8 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
       similar: [],
       rawData: [
         { 
-          target: word ? word.toString() : '',
-          error: word ? `"${word.toString()}" has invalid characters` : 'Invalid input.'
+          target: word ? word : '',
+          error: word ? `"${word}" has invalid characters` : 'Invalid input.'
         }
       ]
     };
@@ -74,7 +79,7 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
    */
   if (typeof wordData[0] === 'string') {
     return { 
-      msg: `${word.toString().toLowerCase()}`,
+      msg: `${word.toLowerCase()}`,
       similar: wordData.filter((word: string) => typeof word === 'string'),
       rawData: [{ target: word }, ...wordData],
     };
@@ -86,7 +91,7 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
     similar: wordData.filter((word: string) => typeof word === 'string'),
     rawData: [{ target: word }, ...wordData],
   };
-  // redirect(`/dictionary/${word.toString().toLowerCase()}`);
+  // redirect(`/dictionary/${word.toLowerCase()}`);
 }
 
 /**
@@ -111,4 +116,8 @@ function validateWord(word: string): boolean {
     }
   }
   return onlyHiphensHaveMatched;
+}
+
+function isWord(word: string | FormDataEntryValue | null): word is string {
+  return word !== null ? true : false;
 }

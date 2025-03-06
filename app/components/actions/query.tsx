@@ -8,13 +8,31 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
 
   let success = true;
 
-  const wordData = await fetch('http://biblion.karnovah.com/api/v1', {
+  const wordData = await fetch('http:localhost:3000/api/v1', {
     method: 'POST',
     body: JSON.stringify(word),
-  }).then(res => res.json()).catch(() => success = false);
+  }).then(res => {
+    if (res.status === 400 && res.statusText === 'Invalid Input') {
+      return {
+        msg: '',
+        similar: [],
+        rawData: [
+          { 
+            target: word ? word.toString() : '',
+            error: word ? `"${word.toString()}" has invalid characters` : 'Invalid input.'
+          }
+        ]
+      };
+    }
+    return res.json();
+  }).catch(() => success = false);
+
+  if (Object.keys(wordData).includes('rawData')) {
+    return wordData;
+  }
 
   if (!success || !word || wordData.length === 0 || typeof wordData[0] === 'string') {
-    if (!word) { console.log(3); return { msg: '', similar: [], rawData: [{}] }; }
+    if (!word) { return { msg: '', similar: [], rawData: [{}] }; }
 
     return { 
       msg: `${word.toString().toLowerCase()}`,

@@ -9,14 +9,26 @@ import { ActionType } from './SearchBar.types';
 export default function SearchBar() {
   const { formState, reducState, formAction } = React.useContext(DefinitionsContext);
   const { dispatch } = React.useContext(DefinitionsDispatchContext);
+  const [isInvalidInput, setIsInvalidInput] = React.useState<boolean>(false);
 
   const router = useRouter();
 
   React.useEffect(() => {
     if (formState.rawData.length < 2) {
+      const target = formState.rawData[0];
+
+      if (target instanceof Object && Object.keys(target).includes('error')) {
+        dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: [target] as object[] } });
+        setIsInvalidInput(true);
+        return;
+      }
       return;
     }
-    console.log(formState.rawData);
+
+    if (isInvalidInput === true && !Object.keys(formState.rawData[0]).includes('error')) {
+      setIsInvalidInput(false);
+    }
+
     if (typeof formState.rawData[1] !== 'string') {
       /** State is not restored due to disparate component trees */
       dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
@@ -70,18 +82,22 @@ export default function SearchBar() {
         }
       </div>
       <>
-        {formState.msg && formState.similar.length > 0 && 
+        {(isInvalidInput || (formState.msg && formState.similar.length > 0)) && 
         <div className='flex self-center justify-center relative translate-y-34 w-screen h-64'>
           <div className='absolute flex flex-col w-96 h-max translate-y-20'>
-            <span>Did you mean any of:</span> 
-            <div className='grid grid-cols-3 mt-8'>{formState.similar.map((pot: string) => {
-              return (
-                <p key={`${pot}`}>
-                  {pot}
-                </p>
-              );
-            })}
-            </div>
+            {isInvalidInput === false ? 
+              <>
+                <span>Did you mean any of:</span> 
+                <div className='grid grid-cols-3 mt-8'>{formState.similar.map((pot: string) => {
+                  return (
+                    <p key={`${pot}`}>
+                      {pot}
+                    </p>
+                  );
+                })}
+                </div>
+              </> :
+            <span>{(formState.rawData[0] as { target?: string, error?: string }).error}</span>}
           </div>
         </div>
         }

@@ -8,9 +8,33 @@ function makeWellFormed(parts: Array<string>) {
   return newParts;
 }
 
-async function getWordData(word: string) {
+function validateWord(word: string): boolean {
+  let onlyHiphensHaveMatched = true;
+
+  const matchIterator = word.matchAll(/[\W]/g);
+
+  for (const matchArr of matchIterator) {
+    const matched = matchArr[0];
+
+    if (matched === '-') {
+      onlyHiphensHaveMatched = true; 
+    } else if (onlyHiphensHaveMatched) {
+      onlyHiphensHaveMatched = false;
+    }
+  }
+  return onlyHiphensHaveMatched;
+}
+
+async function getWordData(word: string): Promise<unknown[] | null> {
   const apiKey = process.env.API_KEY;
   const dictionaryEndpoint = process.env.ENDPOINT;
+
+  const isValid = validateWord(word);
+
+  if (isValid === false) {
+    return null;
+  }
+
   const req = `${dictionaryEndpoint}${word}?key=${apiKey}`;
 
   const res = await fetch(req).then(res => res.json());
@@ -41,9 +65,13 @@ export async function GET(req: Request) {
   return new Response(blob);
 }
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   const word = await req.json();
   const part = await getWordData(word);
+
+  if (part === null) {
+    return new Response(new Blob(makeWellFormed(['INVALID'])), { status: 400, statusText: 'Invalid Input.' });
+  }
 
   return Response.json(part);
 }

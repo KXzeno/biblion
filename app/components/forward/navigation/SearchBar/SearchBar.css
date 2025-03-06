@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+.search-bar-ctr {
+  @apply flex flex-col w-screen h-screen border-gray-800 border-8 text-center;
+}
+
+.form-ctr {
+  @apply inline-flex justify-center items-center bg-slate-900 h-7 w-64 self-center translate-y-34 rounded-lg border-1 border-violet-900 text-violet-300;
+  
+}
+
+.form-ctr {
+  @apply inline-flex justify-center items-center bg-slate-900 h-7 w-64 self-center translate-y-34 rounded-lg border-1 border-violet-900 text-violet-300;
+}
+
+.form-ctr:has(.word-input:is(:disabled)) {
+  @apply border-red-700;
+}
+
+.word-input {
+  @apply pl-2 h-5 outline-none disabled:text-gray-700;
+}
+
+.input-unmatched {
+  @apply absolute -translate-y-12 text-violet-300;
+}
+
+.similar-fields-wrapper {
+  @apply flex self-center justify-center relative translate-y-34 w-screen h-64;
+}
+
+.similar-fields-ctr {
+  @apply absolute flex flex-col w-96 h-max translate-y-20;
+}
+
+.similar-fields-grid {
+  @apply grid grid-cols-3 mt-8;
+}

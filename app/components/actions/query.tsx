@@ -8,7 +8,7 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
 
   let success = true;
 
-  const wordData = await fetch('http:localhost:3000/api/v1', {
+  const wordData = await fetch('https://biblion.karnovah.com/api/v1', {
     method: 'POST',
     body: JSON.stringify(word),
   }).then(res => {

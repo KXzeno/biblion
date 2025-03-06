@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 import { DefinitionsContext, DefinitionsDispatchContext } from '@/providers/DefinitionsProvider';
-import { ActionType, PayloadStatus } from './SearchBar.types';
+import { ActionType } from './SearchBar.types';
 
 export default function SearchBar() {
   const { formState, reducState, formAction } = React.useContext(DefinitionsContext);

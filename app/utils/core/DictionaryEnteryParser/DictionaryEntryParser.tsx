@@ -199,6 +199,12 @@ export default class DictionaryEntryParser {
     // Initialize carrier array
     let formatted: Array<[string, React.ReactNode]> = [];
 
+    // FIXME: PARSED CONTEXTS HAVE UNDEFINED 
+    // VALUES, AFTER OBSERVING INITIALIZED SUBENTRIES, 
+    // THERE ARE UNTYPED SENSES SUCH AS "pseq". PARSED
+    // OUTPUT ALSO CONTAINS UNIQUE LABELS SUCH AS "snote"
+    groups = groups.filter(group => group !== undefined) as DefinitionCollection;
+
     ((groups as DefinitionCollection).forEach(group => {
       for (let i = 0; i < group.length ; i++) {
         // Initialize cache

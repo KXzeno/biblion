@@ -21,7 +21,7 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
   }
 
   // Initialize querying status for validation
-  let success = true;
+  let success = true as boolean; // without type assertion, it is a literal(?)
 
   // Validate the user's input for queryable characters
   const isValid = validateWord(word.toString());
@@ -51,16 +51,27 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
     success = false
   });
 
-  // Raw data should only by this stage if a custom error is known
+  // Raw data should only be defined at this stage if a custom error is known
   if (Object.keys(wordData).includes('rawData')) {
     return wordData;
   }
 
+  // Intentionally, the 'success' reference only exists if an unknown
+  // server-side error had occured, however if it becomes relevant,
+  // return custom rawData that's indicative of this exception
+  if (success === false) {
+    return { 
+      msg: '',
+      similar: [],
+      rawData: [{ target: '', error: 'Something wrong had occurred in the server.' }],
+    };
+  }
+
   /** 
-  * No custom error suggests that the API is successful but 
-  * only returned similar inputs, which is implicitly represented
-  * by the data type of the first element in the response
-  */
+   * No custom error suggests that the API is successful but 
+   * only returned similar inputs, which is implicitly represented
+   * by the data type of the first element in the response
+   */
   if (typeof wordData[0] === 'string') {
     return { 
       msg: `${word.toString().toLowerCase()}`,

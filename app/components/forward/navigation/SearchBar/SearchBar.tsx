@@ -15,12 +15,21 @@ export default function SearchBar() {
   React.useEffect(() => {
     if (formState.rawData.length > 0) {
       /** State is not restored due to disparate component trees */
-      // dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
+      dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
       const word = Object.values(formState.rawData[0])[0].toLowerCase();
       formState.rawData.shift();
       if (reducState.status === PayloadStatus.SUCCESS) {
-        const queryString = `${encodeURIComponent(JSON.stringify(formState.rawData))}`
-        router.push(`/dictionary/${word}?defs=${queryString}`);
+        /** Session storage approach */
+        window.sessionStorage.setItem("injected", JSON.stringify(formState.rawData));
+        router.push(`/dictionary/${word}`);
+
+        /** @ignore 
+         *
+         * Search params approach 
+         *
+         * const queryString = `${encodeURIComponent(JSON.stringify(formState.rawData))}`
+         * router.push(`/dictionary/${word}?defs=${queryString}`);
+         */
       }
     }
   }, [formState.rawData]);

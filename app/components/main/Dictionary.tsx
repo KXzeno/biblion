@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import DefinitionsProvider from '@/providers/DefinitionsProvider';
 import Term from '@/forward/dictionary';
 
 export default function DictionaryPage({ 
@@ -11,9 +12,9 @@ export default function DictionaryPage({
 }) : React.ReactNode {
 
   return (
-    <>
+    <DefinitionsProvider>
       <Term term={word} />
-    </>
+    </DefinitionsProvider>
   );
 }
 

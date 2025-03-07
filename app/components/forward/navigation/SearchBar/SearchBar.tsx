@@ -43,7 +43,7 @@ export default function SearchBar(): React.ReactNode {
     if (typeof formState.rawData[1] !== 'string') {
       // Inject payload with the similar fields to process in JSX
       /** State is not restored due to disparate component trees */
-      dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData } });
+      dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData as object[]} });
 
       // Parse and remove first element, a custom object, that stores the form input
       const word = Object.values(formState.rawData[0])[0].toLowerCase();

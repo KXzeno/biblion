@@ -5,3 +5,5 @@ export interface ErroneousResponse {
   similar: Array<string>;
   rawData: Array<{ target: string; error: string } | object>;
 }
+
+export type PendingResponse = SuccessfulResponse | ErroneousResponse;

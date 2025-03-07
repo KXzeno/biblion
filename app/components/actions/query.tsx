@@ -3,7 +3,7 @@
 // import { z } from "zod";
 // import { redirect } from "next/navigation";
 
-import type { SuccessfulResponse, ErroneousResponse, PendingResponse } from "./types/query.types";
+import type { SuccessfulResponse, ErroneousResponse, PendingResponse, ResponseData } from "./types/query.types";
 
 /**
  * Server action for handling word querying form responses
@@ -49,12 +49,12 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
   }
 
   // Send a request in local endpoint for querying word data
-  const wordData: PendingResponse = await fetch('https://biblion.karnovah.com/api/v1', {
+  const wordData: ResponseData | ErroneousResponse = await fetch('https://biblion.karnovah.com/api/v1', {
     method: 'POST',
     body: JSON.stringify(word),
   }).then(async res => { 
     // Returns status code 200 but could be zero data
-    return res.json().then((defs: SuccessfulResponse) => {
+    return res.json().then((defs: object[]) => {
       // If no data retrieved, mark unsuccessful
       if (defs.length < 1) {
         success = false;
@@ -93,7 +93,7 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
     return { 
       msg: `${word.toLowerCase()}`,
       similar: wordData.filter((word: object | string) => typeof word === 'string'),
-      rawData: [{ target: word }, ...wordData as Omit<SuccessfulResponse, string>[]],
+      rawData: [{ target: word }, ...wordData],
     };
   }
 
@@ -102,7 +102,7 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
     // Msg must remain empty to avoid erroneous checks
     msg: '',
     similar: wordData.filter((word: object | string) => typeof word === 'string'),
-    rawData: [{ target: word }, ...wordData as Omit<SuccessfulResponse, string>[]],
+    rawData: [{ target: word }, ...wordData],
   };
   // redirect(`/dictionary/${word.toLowerCase()}`);
 }
@@ -157,6 +157,6 @@ function isWord(word: string | FormDataEntryValue | null): word is string {
  * @param word - the data to predicate
  * @returns a boolean causing type narrowing of SuccessfulResponse and ErroneousResponse
  */
-function isTerminatedEarly(data: PendingResponse ): data is ErroneousResponse  {
+function isTerminatedEarly(data: ResponseData | ErroneousResponse): data is ErroneousResponse  {
   return !(data instanceof Array);
 }

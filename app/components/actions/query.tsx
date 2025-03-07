@@ -4,6 +4,7 @@
 // import { redirect } from "next/navigation";
 
 import type { SuccessfulResponse, ErroneousResponse, PendingResponse, ResponseData } from "./types/query.types";
+import SearchInputHandler from "@/utils/core/SearchInputHandler";
 
 /**
  * Server action for handling word querying form responses
@@ -18,7 +19,7 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
   let word = formData.get('word');
 
   // Add safeguard and predicate
-  if (!isWord(word)) {
+  if (!SearchInputHandler.isWord(word)) {
     throw new Error('Null input.');
   }
 
@@ -26,26 +27,17 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
   let success = true as boolean; // without type assertion, it is a literal(?)
 
   // Validate the user's input for queryable characters
-  const isValid = validateWord(word);
+  const isValid = SearchInputHandler.validateWord(word);
 
   // Remove trailing whitespace
-  word = removeTrails(word);
+  word = SearchInputHandler.removeTrails(word);
 
   // Return an object with customized raw data if invalid
   if (isValid === false) {
     // Transform invalid characters for consumer-side manipulation
-    word = markForAlteration(word);
+    word = SearchInputHandler.markForAlteration(word);
 
-    return {
-      msg: '',
-      similar: [],
-      rawData: [
-        { 
-          target: word,
-          error: `"${word}" has invalid characters`
-        }
-      ]
-    };
+    return SearchInputHandler.createResponse(word, { invalid: true });
   }
 
   // Send a request in local endpoint for querying word data
@@ -58,30 +50,23 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
       // If no data retrieved, mark unsuccessful
       if (defs.length < 1) {
         success = false;
+        return SearchInputHandler.createResponse(word) as ErroneousResponse;
       }
       return defs;
     });
   }).catch(() => {
     // On querying failure, update success
     success = false
-    return { 
-      msg: `${word.toLowerCase()}`,
-      similar: [] as string[],
-      rawData: [{ target: word, error: 'Something occurred in the server.'}],
-    } as ErroneousResponse;
+    return SearchInputHandler.createResponse(word, { error: true }) as ErroneousResponse;
   });
 
   // Predicate type and termiante early on code 200 w/ empty array
-  if (isTerminatedEarly(wordData)) {
+  if (SearchInputHandler.isTerminatedEarly(wordData)) {
     // Throw error if terminating a successful response
     if (success === true) {
       throw new Error('Payload was marked successful but terminated early.');
     }
-    return { 
-      msg: word,
-      similar: [] as string[],
-      rawData: [{}],
-    };
+    return wordData;
   }
 
   /** 
@@ -90,73 +75,11 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
    * by the data type of the first element in the response
    */
   if (typeof wordData[0] === 'string') {
-    return { 
-      msg: `${word.toLowerCase()}`,
-      similar: wordData.filter((word: object | string) => typeof word === 'string'),
-      rawData: [{ target: word }, ...wordData],
-    };
+    return SearchInputHandler.createResponse(word, { data: wordData, unacknowledged: true }) as SuccessfulResponse;
   }
 
   // At this stage, the request is unexceptionally fulfilled
-  return { 
-    // Msg must remain empty to avoid erroneous checks
-    msg: '',
-    similar: wordData.filter((word: object | string) => typeof word === 'string'),
-    rawData: [{ target: word }, ...wordData],
-  } as SuccessfulResponse;
+  // Msg must remain empty to avoid erroneous checks
+  return SearchInputHandler.createResponse(word, { data: wordData, successful: true }) as SuccessfulResponse;
   // redirect(`/dictionary/${word.toLowerCase()}`);
-}
-
-/**
- * Utility function to validate input from form data
- *
- * @param word - the word to validate
- * @returns true if only containing word
- * characters and hiphens, otherwise false
- */
-function validateWord(word: string): boolean {
-  let onlyHiphensHaveMatched = true;
-
-  const matchIterator = word.matchAll(/[\W]/g);
-
-  for (const matchArr of matchIterator) {
-    const matched = matchArr[0];
-
-    if (matched === '-') {
-      onlyHiphensHaveMatched = true; 
-    } else if (onlyHiphensHaveMatched) {
-      onlyHiphensHaveMatched = false;
-    }
-  }
-  return onlyHiphensHaveMatched;
-}
-
-function removeTrails(str: string): string {
-  const trimmed = str.replaceAll(/(?<![a-zA-Z])\s{0,}/g, '');
-  return trimmed;
-}
-
-function markForAlteration(str: string): string {
-  const transformed = str.replaceAll(/((?!\-|\s)[\W\d]+?|\-{1,})/g, '<$1>');
-  return transformed;
-}
-
-/**
- * Type predicator for form entry
- *
- * @param word - the word to predicate
- * @returns a boolean causing type narrowing of Form | null or string
- */
-function isWord(word: string | FormDataEntryValue | null): word is string {
-  return word !== null ? true : false;
-}
-
-/**
- * Type predicator for early terminated response
- *
- * @param word - the data to predicate
- * @returns a boolean causing type narrowing of SuccessfulResponse and ErroneousResponse
- */
-function isTerminatedEarly(data: ResponseData | ErroneousResponse): data is ErroneousResponse  {
-  return !(data instanceof Array);
 }

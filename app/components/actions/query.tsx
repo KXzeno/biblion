@@ -3,7 +3,7 @@
 // import { z } from "zod";
 // import { redirect } from "next/navigation";
 
-import type { SuccessfulResponse, ErroneousResponse } from "./types/query.types";
+import type { SuccessfulResponse, ErroneousResponse, PendingResponse } from "./types/query.types";
 
 /**
  * Server action for handling word querying form responses
@@ -13,7 +13,7 @@ import type { SuccessfulResponse, ErroneousResponse } from "./types/query.types"
  *
  * @returns the newer state of this action
  */
-export async function queryWord(prevState: SuccessfulResponse | ErroneousResponse, formData: FormData): Promise<typeof prevState> {
+export async function queryWord(prevState: PendingResponse, formData: FormData): Promise<typeof prevState> {
   // Parses for the input with the name attribute 'word'
   let word = formData.get('word');
 
@@ -49,7 +49,7 @@ export async function queryWord(prevState: SuccessfulResponse | ErroneousRespons
   }
 
   // Send a request in local endpoint for querying word data
-  const wordData: SuccessfulResponse | ErroneousResponse = await fetch('https://biblion.karnovah.com/api/v1', {
+  const wordData: PendingResponse = await fetch('https://biblion.karnovah.com/api/v1', {
     method: 'POST',
     body: JSON.stringify(word),
   }).then(async res => { 
@@ -157,6 +157,6 @@ function isWord(word: string | FormDataEntryValue | null): word is string {
  * @param word - the data to predicate
  * @returns a boolean causing type narrowing of SuccessfulResponse and ErroneousResponse
  */
-function isTerminatedEarly(data: SuccessfulResponse | ErroneousResponse ): data is ErroneousResponse  {
+function isTerminatedEarly(data: PendingResponse ): data is ErroneousResponse  {
   return !(data instanceof Array);
 }

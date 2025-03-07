@@ -1,12 +1,9 @@
 import { SearchBarReducAction } from "@/components/forward/navigation";
 import { PayloadStatus } from "@/forward/navigation/SearchBar/SearchBar.types";
+import { PendingResponse } from "@/components/actions/types/query.types";
 
 export interface ContextData {
-  formState: { 
-    msg: string;
-    similar: string[];
-    rawData: object[];
-  },
+  formState: PendingResponse;
   formAction: (payload: FormData) => void,
   reducState: { 
     input: string,

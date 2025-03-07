@@ -9,14 +9,15 @@ import { queryWord } from '@/actions/query';
 // import DictionaryEntryParser, { type Payload } from '@/utils/core/DictionaryEnteryParser';
 import type { SearchBarReducState, SearchBarReducAction } from '@/components/forward/navigation';
 import { ActionType, PayloadStatus } from '@/forward/navigation/SearchBar/SearchBar.types';
+import { PendingResponse } from '@/components/actions/types/query.types';
 
 // Initialize definitions context
 export const DefinitionsContext: React.Context<ContextData> = React.createContext({
   formState: { 
-    msg: '' as string, 
+    msg: '',
     similar: [] as string[],
     rawData: [] as object[],
-  },
+  } as PendingResponse,
   formAction: (() => null) as (payload: FormData) => void,
   reducState: { 
     input: '' as string,
@@ -94,7 +95,7 @@ function reducer(state: SearchBarReducState, action: SearchBarReducAction): type
  * @returns a provider component for definitions
  */
 export default function DefinitionsProvider({ children }: { children: React.ReactNode }): React.ReactNode {
-  const [formState, formAction, formStatePending ] = React.useActionState(queryWord, { msg: '', similar: [] as string[], rawData: [] as object[] });
+  const [formState, formAction, formStatePending ] = React.useActionState(queryWord, { msg: '', similar: [] as string[], rawData: [] as object[] } as PendingResponse);
 
   const [reducState, dispatch] = React.useReducer<SearchBarReducState, [SearchBarReducAction]>(reducer, { 
     input: '' as string, 

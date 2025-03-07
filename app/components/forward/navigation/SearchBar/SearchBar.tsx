@@ -141,7 +141,75 @@ export default function SearchBar(): React.ReactNode {
                 })}
                 </div>
               </> :
-              <span>{(formState.rawData[0] as { target?: string, error?: string }).error}</span>}
+              <span>
+                { /* Color code invalid chars via transform */ }
+                {((data: { target: string, error: string }): React.ReactNode => {
+                  // Match the quoted string which is user input
+                  const parsedWordMatch = data.error.match(/(?:\")(.+)(?:\")/);
+
+                  // Throw error when server failed to return input
+                  if (parsedWordMatch === null) {
+                    throw new Error('Input missing');
+                  }
+
+                  // Matched pattern on non-global expressions are in 2nd index, else first 
+                  const invalidInput = parsedWordMatch[1];
+
+                  /** 
+                   * Create RegExp match iterator that matches 
+                   * invalid characters, parsed by enclosed diamonds
+                   *
+                   * @example <.>, <*>, <!> 
+                   */
+                  const invalidMatchesIterator = invalidInput.matchAll(/(?:\<)(.+?)(?:\>)/g);
+
+                  // Initialize index for comparisons in iterator logic
+                  let recentUsedIndex = 0;
+
+                  // Initialize array holding strings signifying 
+                  // altering states, later converted to a React node
+                  let cleaved: Array<{ str: string, alter: boolean } | React.ReactNode> = [];
+
+                  // Start iterator and loop until complete
+                  let next = invalidMatchesIterator.next();
+
+                  while (next.done === false) {
+                    const value = next.value[0];
+                    const index = next.value.index;
+
+                    // Index mismatch indicates missing partial strings
+                    if (index !== recentUsedIndex) {
+                      // Manually insert unchecked partial string and update recent index
+                      cleaved.push({ str: invalidInput.slice(recentUsedIndex, index), alter: false });
+                      recentUsedIndex = index;
+                    }
+                    // Insert alterable string and update recent index
+                    cleaved.push({ str: invalidInput.slice(recentUsedIndex, index + value.length), alter: true });
+                    recentUsedIndex += value.length;
+
+                    // Traverse iterator
+                    next = invalidMatchesIterator.next();
+
+                    if (next.done === true) {
+                      // If iterator reached end with index mismatch, manually insert unchecked string
+                      if (recentUsedIndex === invalidInput.length) {
+                        return;
+                      }
+                      cleaved.push({ str: invalidInput.slice(recentUsedIndex), alter: false });
+                    }
+                  }
+
+                  // Map each cleaved object to an element differing by their alterable states
+                  cleaved = (cleaved as Array<{str: string, alter: boolean}>).map(slice => {
+                    if (slice.alter) {
+                      return <span className='invalid-field'>{slice.str.slice(1, slice.str.length - 1)}</span>;
+                    }
+                    return <>{slice.str}</>;
+                  }) as React.ReactNode[];
+
+                  return <>"{[...cleaved]}" contains invalid characters.</> as React.ReactNode;
+                })(formState.rawData[0] as { target: string, error: string })}
+              </span>}
           </div>
         </div>
         }

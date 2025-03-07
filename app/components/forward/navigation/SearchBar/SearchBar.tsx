@@ -39,11 +39,6 @@ export default function SearchBar(): React.ReactNode {
       return;
     }
 
-    // Update invalid state if previously toggled
-    if (isInvalidInput === true && !Object.keys(formState.rawData[0]).includes('error')) {
-      setIsInvalidInput(false);
-    }
-
     // Check if queried data only returned similar matches
     if (typeof formState.rawData[1] !== 'string') {
       // Inject payload with the similar fields to process in JSX
@@ -95,6 +90,8 @@ export default function SearchBar(): React.ReactNode {
         <form 
           action={formAction} 
           onSubmit={(e) => {
+            // Revalidate invalid input
+            setIsInvalidInput(false);
             dispatch({ type: ActionType.Query, payload: { ...reducState, input: reducState.input } });
             dispatch({ type: ActionType.Invalidate });
             e.stopPropagation();
@@ -144,7 +141,9 @@ export default function SearchBar(): React.ReactNode {
               <p>
                 { /* Color code invalid chars via transform */ }
                 {((data: { target: string, error: string }): React.ReactNode => {
+
                   // Match the quoted string which is user input
+                  console.log(data, isInvalidInput);
                   const parsedWordMatch = data.error.match(/(?:\")(.+)(?:\")/);
 
                   // Throw error when server failed to return input
@@ -175,7 +174,9 @@ export default function SearchBar(): React.ReactNode {
 
                   while (next.done === false) {
                     const value = next.value[0];
+
                     const index = next.value.index;
+
 
                     // Index mismatch indicates missing partial strings
                     if (index !== recentUsedIndex) {
@@ -192,7 +193,7 @@ export default function SearchBar(): React.ReactNode {
 
                     if (next.done === true) {
                       // If iterator reached end with index mismatch, manually insert unchecked string
-                      if (recentUsedIndex === invalidInput.length) {
+                      if (recentUsedIndex - value.length === invalidInput.length) {
                         return;
                       }
                       cleaved.push({ str: invalidInput.slice(recentUsedIndex), alter: false });

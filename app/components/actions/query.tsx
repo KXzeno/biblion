@@ -13,14 +13,12 @@
  */
 export async function queryWord(prevState: { msg: string, similar: string[], rawData: object[] }, formData: FormData): Promise<typeof prevState> {
   // Parses for the input with the name attribute 'word'
-  const word = formData.get('word');
+  let word = formData.get('word');
 
   // Add safeguard and predicate
   if (!isWord(word)) {
     throw new Error('Null input.');
   }
-
-  // Assert type as string
 
   // Initialize querying status for validation
   let success = true as boolean; // without type assertion, it is a literal(?)
@@ -29,17 +27,20 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
   const isValid = validateWord(word);
 
   // Remove trailing whitespace
-
+  word = removeTrails(word);
 
   // Return an object with customized raw data if invalid
   if (isValid === false) {
+    // Transform invalid characters for consumer-side manipulation
+    word = markForAlteration(word);
+
     return {
       msg: '',
       similar: [],
       rawData: [
         { 
-          target: word ? word : '',
-          error: word ? `"${word}" has invalid characters` : 'Invalid input.'
+          target: word,
+          error: `"${word}" has invalid characters`
         }
       ]
     };
@@ -118,6 +119,22 @@ function validateWord(word: string): boolean {
   return onlyHiphensHaveMatched;
 }
 
+function removeTrails(str: string): string {
+  const trimmed = str.replaceAll(/(?<![a-zA-Z])\s{0,}/g, '');
+  return trimmed;
+}
+
+function markForAlteration(str: string): string {
+  const transformed = str.replaceAll(/((?!\-|\s)[\W\d]+?|\-{1,})/g, '<$1>');
+  return transformed;
+}
+
+/**
+ * Type predicator for form entry
+ *
+ * @param word - the word to predicate
+ * @returns a boolean causing type narrowing of Form | null or string
+ */
 function isWord(word: string | FormDataEntryValue | null): word is string {
   return word !== null ? true : false;
 }

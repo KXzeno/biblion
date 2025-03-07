@@ -141,7 +141,7 @@ export default function SearchBar(): React.ReactNode {
                 })}
                 </div>
               </> :
-              <span>
+              <p>
                 { /* Color code invalid chars via transform */ }
                 {((data: { target: string, error: string }): React.ReactNode => {
                   // Match the quoted string which is user input
@@ -200,16 +200,16 @@ export default function SearchBar(): React.ReactNode {
                   }
 
                   // Map each cleaved object to an element differing by their alterable states
-                  cleaved = (cleaved as Array<{str: string, alter: boolean}>).map(slice => {
+                  cleaved = (cleaved as Array<{str: string, alter: boolean}>).map((slice, i) => {
                     if (slice.alter) {
-                      return <span className='invalid-field'>{slice.str.slice(1, slice.str.length - 1)}</span>;
+                      return <span key={`invalid-field:${slice.str}-${i}`} className='invalid-field'>{slice.str.slice(1, slice.str.length - 1)}</span>;
                     }
-                    return <>{slice.str}</>;
+                    return <span key={`valid-field:${slice.str}-${i}`}>{slice.str}</span>;
                   }) as React.ReactNode[];
 
-                  return <>"{[...cleaved]}" contains invalid characters.</> as React.ReactNode;
+                  return <><>{'"'}</>{[...cleaved]}<>{'"'}</> contains invalid characters.</> as React.ReactNode;
                 })(formState.rawData[0] as { target: string, error: string })}
-              </span>}
+              </p>}
           </div>
         </div>
         }

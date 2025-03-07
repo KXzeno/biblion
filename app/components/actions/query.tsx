@@ -3,6 +3,8 @@
 // import { z } from "zod";
 // import { redirect } from "next/navigation";
 
+import type { SuccessfulResponse, ErroneousResponse } from "./types/query.types";
+
 /**
  * Server action for handling word querying form responses
  *
@@ -11,7 +13,7 @@
  *
  * @returns the newer state of this action
  */
-export async function queryWord(prevState: { msg: string, similar: string[], rawData: object[] }, formData: FormData): Promise<typeof prevState> {
+export async function queryWord(prevState: SuccessfulResponse | ErroneousResponse, formData: FormData): Promise<typeof prevState> {
   // Parses for the input with the name attribute 'word'
   let word = formData.get('word');
 
@@ -47,29 +49,40 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
   }
 
   // Send a request in local endpoint for querying word data
-  const wordData = await fetch('https://biblion.karnovah.com/api/v1', {
+  const wordData: SuccessfulResponse | ErroneousResponse = await fetch('https://biblion.karnovah.com/api/v1', {
     method: 'POST',
     body: JSON.stringify(word),
-  }).then(res => { 
-    return res.json();
+  }).then(async res => { 
+    // Returns status code 200 but could be zero data
+    return res.json().then((defs: SuccessfulResponse) => {
+      // If no data retrieved, mark unsuccessful
+      if (defs.length < 1) {
+        success = false;
+      }
+      return defs;
+    });
   }).catch(() => {
     // On querying failure, update success
     success = false
+    return { 
+      msg: `${word.toLowerCase()}`,
+      similar: [] as string[],
+      rawData: [{ target: word, error: 'Something occurred in the server.'}],
+    } as ErroneousResponse;
   });
 
-  // Raw data should only be defined at this stage if a custom error is known
-  if (Object.keys(wordData).includes('rawData')) {
-    return wordData;
-  }
+  console.log(success);
 
-  // Intentionally, the 'success' reference only exists if an unknown
-  // server-side error had occured, however if it becomes relevant,
-  // return custom rawData that's indicative of this exception
-  if (success === false) {
+  // Predicate type and termiante early on code 200 w/ empty array
+  if (isTerminatedEarly(wordData)) {
+    // Throw error if terminating a successful response
+    if (success === true) {
+      throw new Error('Payload was marked successful but terminated early.');
+    }
     return { 
-      msg: '',
-      similar: [],
-      rawData: [{ target: '', error: 'Something wrong had occurred in the server.' }],
+      msg: word,
+      similar: [] as string[],
+      rawData: [{}],
     };
   }
 
@@ -81,16 +94,16 @@ export async function queryWord(prevState: { msg: string, similar: string[], raw
   if (typeof wordData[0] === 'string') {
     return { 
       msg: `${word.toLowerCase()}`,
-      similar: wordData.filter((word: string) => typeof word === 'string'),
-      rawData: [{ target: word }, ...wordData],
+      similar: wordData.filter((word: object | string) => typeof word === 'string'),
+      rawData: [{ target: word }, ...wordData as Omit<SuccessfulResponse, string>[]],
     };
   }
 
   // At this stage, the request is unexceptionally fulfilled
   return { 
-    msg: ``,
-    similar: wordData.filter((word: string) => typeof word === 'string'),
-    rawData: [{ target: word }, ...wordData],
+    msg: word,
+    similar: wordData.filter((word: object | string) => typeof word === 'string'),
+    rawData: [{ target: word }, ...wordData as Omit<SuccessfulResponse, string>[]],
   };
   // redirect(`/dictionary/${word.toLowerCase()}`);
 }
@@ -137,4 +150,14 @@ function markForAlteration(str: string): string {
  */
 function isWord(word: string | FormDataEntryValue | null): word is string {
   return word !== null ? true : false;
+}
+
+/**
+ * Type predicator for early terminated response
+ *
+ * @param word - the data to predicate
+ * @returns a boolean causing type narrowing of SuccessfulResponse and ErroneousResponse
+ */
+function isTerminatedEarly(data: SuccessfulResponse | ErroneousResponse ): data is ErroneousResponse  {
+  return !(data instanceof Array);
 }

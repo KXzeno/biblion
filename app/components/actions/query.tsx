@@ -71,8 +71,6 @@ export async function queryWord(prevState: SuccessfulResponse | ErroneousRespons
     } as ErroneousResponse;
   });
 
-  console.log(success);
-
   // Predicate type and termiante early on code 200 w/ empty array
   if (isTerminatedEarly(wordData)) {
     // Throw error if terminating a successful response
@@ -101,7 +99,8 @@ export async function queryWord(prevState: SuccessfulResponse | ErroneousRespons
 
   // At this stage, the request is unexceptionally fulfilled
   return { 
-    msg: word,
+    // Msg must remain empty to avoid erroneous checks
+    msg: '',
     similar: wordData.filter((word: object | string) => typeof word === 'string'),
     rawData: [{ target: word }, ...wordData as Omit<SuccessfulResponse, string>[]],
   };

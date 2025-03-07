@@ -1,4 +1,4 @@
-export type ResponseData = Array<string | object>;
+export type ResponseData = Array<string | object> | ErroneousResponse;
 
 export interface SuccessfulResponse { 
   msg: string;

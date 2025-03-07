@@ -103,7 +103,7 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
     msg: '',
     similar: wordData.filter((word: object | string) => typeof word === 'string'),
     rawData: [{ target: word }, ...wordData],
-  };
+  } as SuccessfulResponse;
   // redirect(`/dictionary/${word.toLowerCase()}`);
 }
 

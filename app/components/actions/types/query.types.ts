@@ -1,4 +1,10 @@
-export type SuccessfulResponse = Array<{ target: string, error: string } | object | string>;
+export type ResponseData = Array<string | object>;
+
+export interface SuccessfulResponse { 
+  msg: string;
+  similar: Array<string>;
+  rawData: Array<{ target: string } | object | string>;
+}
 
 export interface ErroneousResponse {
   msg: string;

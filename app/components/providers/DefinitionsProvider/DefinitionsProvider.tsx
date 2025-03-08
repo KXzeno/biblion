@@ -33,6 +33,13 @@ export const DefinitionsDispatchContext: React.Context<DispatchContextData> = Re
   dispatch: (() => null) as React.ActionDispatch<[SearchBarReducAction]>,
 })
 
+const searchBarReducDefaults = { 
+  input: '' as string, 
+  CLIENT_CACHE: [] as string[], 
+  rawData: [] as object[],
+  status: PayloadStatus.INACTIVE as PayloadStatus,
+}
+
 /**
  * Reducer function for defintions dispatcher
  *
@@ -68,13 +75,12 @@ function reducer(state: SearchBarReducState, action: SearchBarReducAction): type
       // Update the value for the form input
       return { ...state, input: action.payload.input };
     }
-    case ActionType.Invalidate: {
+    case ActionType.Revalidate: {
       // Validate payload 
       if (state.status === PayloadStatus.INACTIVE) {
-        // TODO: Add response to invalidation
         return { ...state };
       }
-      return { ...state };
+      return searchBarReducDefaults;
     }
     case ActionType.Inject: {
       // Validate payload 
@@ -97,12 +103,7 @@ function reducer(state: SearchBarReducState, action: SearchBarReducAction): type
 export default function DefinitionsProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [formState, formAction, formStatePending ] = React.useActionState(queryWord, { msg: '', similar: [] as string[], rawData: [] as object[] } as PendingResponse);
 
-  const [reducState, dispatch] = React.useReducer<SearchBarReducState, [SearchBarReducAction]>(reducer, { 
-    input: '' as string, 
-    CLIENT_CACHE: [] as string[], 
-    rawData: [] as object[],
-    status: PayloadStatus.INACTIVE as PayloadStatus,
-  });
+  const [reducState, dispatch] = React.useReducer<SearchBarReducState, [SearchBarReducAction]>(reducer, searchBarReducDefaults);
 
   return (
     <DefinitionsContext.Provider value={{ formState, formAction, reducState, formStatePending }}>

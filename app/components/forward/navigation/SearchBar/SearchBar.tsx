@@ -31,6 +31,7 @@ export default function SearchBar(): React.ReactNode {
       // Check if the lone data value is a custom error object
       if (target instanceof Object && Object.keys(target).includes('error')) {
         // Inject the error object and update invalid state
+        dispatch({ type: ActionType.Revalidate });
         dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: [target] as object[] } });
         setIsInvalidInput(true);
         return;
@@ -43,6 +44,7 @@ export default function SearchBar(): React.ReactNode {
     if (typeof formState.rawData[1] !== 'string') {
       // Inject payload with the similar fields to process in JSX
       /** State is not restored due to disparate component trees */
+      dispatch({ type: ActionType.Revalidate });
       dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData as object[]} });
 
       // Parse and remove first element, a custom object, that stores the form input
@@ -92,8 +94,8 @@ export default function SearchBar(): React.ReactNode {
           onSubmit={(e) => {
             // Revalidate invalid input
             setIsInvalidInput(false);
+            dispatch({ type: ActionType.Revalidate });
             dispatch({ type: ActionType.Query, payload: { ...reducState, input: reducState.input } });
-            dispatch({ type: ActionType.Invalidate });
             e.stopPropagation();
           }}
         >

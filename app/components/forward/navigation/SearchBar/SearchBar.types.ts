@@ -6,7 +6,7 @@ export enum PayloadStatus {
 
 export enum ActionType {
   Input = 'input',
-  Invalidate = 'invalidate',
+  Revalidate = 'revalidate',
   Query = 'query',
   Inject = 'inject',
 }

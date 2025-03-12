@@ -100,7 +100,7 @@ function reducer(state: SearchBarReducState, action: SearchBarReducAction): type
  * @param { children } - the React elements the provider wraps
  * @returns a provider component for definitions
  */
-export default function DefinitionsProvider({ children }: { children: React.ReactNode }): React.ReactNode {
+export default function DefinitionsProvider({ children }: React.ComponentProps<'div'>): React.ReactNode {
   const [formState, formAction, formStatePending ] = React.useActionState(queryWord, { msg: '', similar: [] as string[], rawData: [] as object[] } as PendingResponse);
 
   const [reducState, dispatch] = React.useReducer<SearchBarReducState, [SearchBarReducAction]>(reducer, searchBarReducDefaults);

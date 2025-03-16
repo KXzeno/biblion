@@ -4,6 +4,7 @@ import React from 'react';
 
 import DefinitionsProvider from '@/providers/DefinitionsProvider';
 import Term from '@/forward/dictionary';
+import { SuccessfulResponse } from '../actions/types/query.types';
 
 /**
  * Wrapper component to hold context
@@ -13,13 +14,15 @@ import Term from '@/forward/dictionary';
  */
 export default function Dictionary({ 
   word,
+  tempData,
 }: {
-  word: string 
+  word: string,
+  tempData: SuccessfulResponse['rawData'] | null,
 }) : React.ReactNode {
 
   return (
     <DefinitionsProvider>
-      <Term term={word} />
+      <Term term={word} tempData={tempData} />
     </DefinitionsProvider>
   );
 }

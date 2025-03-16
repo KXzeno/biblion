@@ -11,6 +11,7 @@ import {
 } from '@/providers/DefinitionsProvider';
 import { ActionType } from '@/forward/navigation/SearchBar/SearchBar.types';
 import type { Payload, ParsedPayload } from '@/utils/core/DictionaryEnteryParser';
+import { SuccessfulResponse } from '@/components/actions/types/query.types';
 
 /**
  * The core component for the dynamic dictionary route
@@ -18,7 +19,13 @@ import type { Payload, ParsedPayload } from '@/utils/core/DictionaryEnteryParser
  * @param { term } - the slug or word
  * @returns a component utilizing the mapped server-queried data
  */
-export default function Term({ term }: { term: string }): React.ReactNode {
+export default function Term({ 
+  term,
+  tempData,
+}: { 
+  term: string,
+  tempData: SuccessfulResponse['rawData'] | null,
+}): React.ReactNode {
   // Initialize state for storing the data parsed by DictionaryEntryParser class
   const [parsedNodes, setParsedNodes] = React.useState<ParsedPayload | null>(null);
 
@@ -34,6 +41,16 @@ export default function Term({ term }: { term: string }): React.ReactNode {
   const { dispatch } = useDefinitionsDispatchContext();
 
   React.useEffect(() => {
+    if (tempData !== null) {
+      // Remove key object
+      tempData.shift();
+      dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: tempData as object[] } });
+      const parsed = DictionaryEntryParser.parse(reducState.rawData as Payload[]);
+      setParsedNodes(parsed as ParsedPayload);
+      setPayloadParsed(true);
+      return;
+    }
+
     // Retrieve encoded server-queried data
     /** Session storage approach */
     const defsString = window.sessionStorage.getItem('injected');
@@ -75,6 +92,7 @@ export default function Term({ term }: { term: string }): React.ReactNode {
         parsedNodes !== null ? 
           parsedNodes.map(nodes => {
           const arr: React.ReactNode[] = [];
+          const invalidArr: object[] = [];
           nodes.defs.forEach(node => {
             // FIXME: Not supposed to be conditional; means
             // there are unparsed values. Check parser class
@@ -85,9 +103,14 @@ export default function Term({ term }: { term: string }): React.ReactNode {
               // read in the iterable. Must refactor parser
               if (Object.keys(node[1] as object).includes('props')) {
                 arr.push(node[1]);
+              } else {
+                invalidArr.push(node[1] as object);
               }
+            } else {
+              return invalidArr.push(node[1]);
             }
           });
+          console.log(invalidArr);
           return arr;
         }) : term
       }

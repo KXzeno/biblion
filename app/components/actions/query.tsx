@@ -2,6 +2,7 @@
 
 // import { z } from "zod";
 // import { redirect } from "next/navigation";
+import { cookies as getCookies } from "next/headers";
 
 import type { SuccessfulResponse, ErroneousResponse, PendingResponse, ResponseData } from "./types/query.types";
 import SearchInputHandler from "@/utils/core/SearchInputHandler";
@@ -22,6 +23,10 @@ export async function queryWord(prevState: PendingResponse, formData: FormData):
   if (!SearchInputHandler.isWord(word)) {
     throw new Error('Null input.');
   }
+
+  // Set cookie header
+  const cookies = await getCookies();
+  cookies.set('query', word);
 
   // Initialize querying status for validation
   let success = true as boolean; // without type assertion, it is a literal(?)

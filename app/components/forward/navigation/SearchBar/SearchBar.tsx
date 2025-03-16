@@ -52,7 +52,7 @@ export default function SearchBar(): React.ReactNode {
       formState.rawData.shift();
 
       /** 
-       * Session storage approach 
+       * Hybrid session storage and cookies approach 
        *
        * @remarks
        *
@@ -75,14 +75,6 @@ export default function SearchBar(): React.ReactNode {
        */
       window.sessionStorage.setItem("injected", JSON.stringify(formState.rawData));
       router.push(`/dictionary/${word}`);
-
-      /** @ignore 
-       *
-       * Search params approach 
-       *
-       * const queryString = `${encodeURIComponent(JSON.stringify(formState.rawData))}`
-       * router.push(`/dictionary/${word}?defs=${queryString}`);
-       */
     }
   }, [formState.rawData]);
 

@@ -37,6 +37,10 @@
   @apply absolute flex flex-col w-96 h-max translate-y-20;
 }
 
+.similar-fields-grid > p > a {
+  @apply text-cyan-600 hover:text-violet-900 ;
+}
+
 .similar-fields-grid {
   @apply grid grid-cols-3 mt-8;
 }

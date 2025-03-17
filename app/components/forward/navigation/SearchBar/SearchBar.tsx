@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import { DefinitionsContext, DefinitionsDispatchContext } from '@/providers/DefinitionsProvider';
 import { ActionType } from './SearchBar.types';
@@ -126,7 +127,7 @@ export default function SearchBar(): React.ReactNode {
                 <div className='similar-fields-grid'>{formState.similar.map((pot: string) => {
                   return (
                     <p key={`${pot}`}>
-                      {pot}
+                      <Link href={`/dictionary/${pot}`}>{pot}</Link>
                     </p>
                   );
                 })}

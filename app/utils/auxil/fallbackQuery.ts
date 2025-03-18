@@ -1,7 +1,15 @@
 import SearchInputHandler from '../core/SearchInputHandler';
 import { ResponseData, ErroneousResponse, SuccessfulResponse } from '../../components/actions/types/query.types';
 
-export default async function manualQuery(word: string) {
+/**
+* A direct query initiated directly by 
+* HTTP requests during cache invalidation
+*
+* @param word - the word to query after invalidation
+* @returns a JSON object of definitions when fulfilled,
+* else an erroneous JSON response
+*/
+export default async function manualQuery(word: string): Promise<SuccessfulResponse> {
   let success: boolean = false as boolean;
   // Send a request in local endpoint for querying word data
   const wordData: ResponseData | ErroneousResponse = await fetch('https://biblion.karnovah.com/api/v1', {

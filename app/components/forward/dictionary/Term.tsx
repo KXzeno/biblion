@@ -3,14 +3,14 @@
 import React from 'react';
 // import { useRouter } from 'next/navigation';
 
-import DictionaryEntryParser from '@/utils/core/DictionaryEnteryParser';
+import DictionaryEntryParser from '@/utils/core/DictionaryEntryParser';
 
 import { 
   DefinitionsContext,
   DefinitionsDispatchContext
 } from '@/providers/DefinitionsProvider';
 import { ActionType } from '@/forward/navigation/SearchBar/SearchBar.types';
-import type { Payload, ParsedPayload } from '@/utils/core/DictionaryEnteryParser';
+import type { Payload, ParsedPayload } from '@/utils/core/DictionaryEntryParser';
 import { SuccessfulResponse } from '@/components/actions/types/query.types';
 
 /**

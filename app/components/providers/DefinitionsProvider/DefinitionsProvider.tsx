@@ -6,7 +6,7 @@ import {
 } from './DefinitionsProvider.types';
 
 import { queryWord } from '@/actions/query';
-// import DictionaryEntryParser, { type Payload } from '@/utils/core/DictionaryEnteryParser';
+// import DictionaryEntryParser, { type Payload } from '@/utils/core/DictionaryEntryParser';
 import type { SearchBarReducState, SearchBarReducAction } from '@/components/forward/navigation';
 import { ActionType, PayloadStatus } from '@/forward/navigation/SearchBar/SearchBar.types';
 import { PendingResponse } from '@/components/actions/types/query.types';

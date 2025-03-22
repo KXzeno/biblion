@@ -1,5 +1,7 @@
 import { Client } from "@stomp/stompjs";
 
+import { WSProps } from "./types/ColligateWebSocket.types";
+
 /**
  * A class that streamlines the 
  * connect process of websockets
@@ -8,16 +10,47 @@ import { Client } from "@stomp/stompjs";
  */
 export default class ColligateWebSocket {
   private client;
+  private endpoint;
+  private destination;
+  private broadcast;
 
   /**
    * @param endpoint - the URL to connect to
+   * @param destination - the route to receive data
+   * @param broadcast - the network users subscribe to
    */
-  constructor(endpoint: string) {
+  constructor({
+    endpoint,
+    destination,
+    broadcast
+  }: WSProps) {
     this.validateEndpoint(endpoint);
+
+    this.endpoint = endpoint;
+    this.destination = destination;
+    this.broadcast = broadcast;
 
     this.client = new Client({
       brokerURL: endpoint,
     });
+  }
+
+  /**
+   * Behavior on a successful connection to the websocket
+   *
+   * @param extFn - the external logic deployed outside of
+   * the subscription logic
+   * @param intFn - the subscription logic
+   */
+  private handleConnect(extFn: () => unknown, intFn: (content: unknown) => unknown) {
+    this.client.onConnect = (frame) => {
+      extFn();
+      console.log('Connected.');
+      this.client.subscribe(this.broadcast, (data) => {
+        const content = JSON.parse(data.body).content;
+        intFn(content);
+      });
+    };
   }
 
   /**

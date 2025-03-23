@@ -1,5 +1,5 @@
 export interface WSProps {
-  endpoint: string;
-  destination: string;
-  broadcast: string;
+  endpoint: string | undefined;
+  destination: string | undefined;
+  broadcast: string | undefined;
 }

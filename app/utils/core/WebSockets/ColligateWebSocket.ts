@@ -43,7 +43,7 @@ export default class ColligateWebSocket {
    * the subscription logic
    * @param intFn - the subscription logic
    */
-  public handleConnect({ extFn, intFn }: ConnectionProps) {
+  public handleConnect({ extFn, intFn }: ConnectionProps): void {
     this.validateFields();
 
     this.client.onConnect = () => {
@@ -53,6 +53,20 @@ export default class ColligateWebSocket {
         const content = JSON.parse(data.body).content;
         intFn(content);
       });
+    };
+  }
+
+  /**
+   * Defines the websocket's error handling fields 
+   */
+  public handleErrors(): void {
+    this.client.onWebSocketError = (error) => {
+      console.error('Error w/ websocket', error);
+    }
+
+    this.client.onStompError = (frame) => {
+      console.error(`Broker reported error: ${frame.headers['message']}`);
+      console.error(`Additional details: ${frame.body}`);
     };
   }
 
@@ -117,12 +131,12 @@ export default class ColligateWebSocket {
    *
    * @param content - the content to inject in payload
    */
-  public send({ content }: { content: string }) {
+  public send({ content }: { content: string }): void {
     this.validateFields();
 
     this.client.publish({
       destination: this.destination as string,
-      body: JSON.stringify({ "content:": content });
+      body: JSON.stringify({ "content": content }),
     });
   }
 

@@ -1,6 +1,6 @@
 import { Client } from "@stomp/stompjs";
 
-import { WSProps } from "./types/ColligateWebSocket.types";
+import { WSProps, ConnectionProps } from "./types/ColligateWebSocket.types";
 
 /**
  * A class that streamlines the 
@@ -43,10 +43,10 @@ export default class ColligateWebSocket {
    * the subscription logic
    * @param intFn - the subscription logic
    */
-  public handleConnect(extFn: () => unknown, intFn: (content: unknown) => unknown) {
+  public handleConnect({ extFn, intFn }: ConnectionProps) {
     this.validateFields();
 
-    this.client.onConnect = (frame) => {
+    this.client.onConnect = () => {
       extFn();
       console.log('Connected.');
       this.client.subscribe(this.broadcast as string, (data) => {
@@ -110,6 +110,20 @@ export default class ColligateWebSocket {
     this.validateFields();
 
     this.client.deactivate();
+  }
+
+  /**
+   * Directs a payload to a destination in the WebSocket
+   *
+   * @param content - the content to inject in payload
+   */
+  public send({ content }: { content: string }) {
+    this.validateFields();
+
+    this.client.publish({
+      destination: this.destination as string,
+      body: JSON.stringify({ "content:": content });
+    });
   }
 
   /**

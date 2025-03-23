@@ -13,6 +13,7 @@ export default class ColligateWebSocket {
   private endpoint;
   private destination;
   private broadcast;
+  public initialized: boolean = false;
 
   /**
    * @param endpoint - the URL to connect to
@@ -42,11 +43,13 @@ export default class ColligateWebSocket {
    * the subscription logic
    * @param intFn - the subscription logic
    */
-  private handleConnect(extFn: () => unknown, intFn: (content: unknown) => unknown) {
+  public handleConnect(extFn: () => unknown, intFn: (content: unknown) => unknown) {
+    this.validateFields();
+
     this.client.onConnect = (frame) => {
       extFn();
       console.log('Connected.');
-      this.client.subscribe(this.broadcast, (data) => {
+      this.client.subscribe(this.broadcast as string, (data) => {
         const content = JSON.parse(data.body).content;
         intFn(content);
       });
@@ -60,11 +63,66 @@ export default class ColligateWebSocket {
    * @throws an error if failed to conform to 
    * websocket pattern, else return nothing
    */
-  private validateEndpoint(ep: string): void | Error {
+  private validateEndpoint(ep: string | undefined): void | Error {
+    if (typeof ep !== "string") {
+      if (typeof ep === undefined) {
+        throw new Error('Endpoint undefined')
+      }
+      throw new Error('Endpoint is not a string')
+    }
+
     const wsUrlPattern = /ws\:\/\/[\w\d\:\-\.]/;
     if (ep.match(wsUrlPattern) === null) {
       throw new Error('Invalid endpoint');
     }
     return;
+  }
+
+  /**
+   * Validates class fields
+   *
+   * @returns true if all fields are initialized
+   * @throws an error if a field is not initialized
+   */
+  private validateFields(): true | Error {
+    this.validateEndpoint(this.endpoint);
+
+    if (this.endpoint && this.client && this.destination && this.broadcast) {
+      return true;
+    }
+
+    throw new Error('Initialization unsuccessful');
+  }
+
+  /**
+   * Extends the activate method of the StompJs client
+   */
+  public activate(): void {
+    this.validateFields();
+
+    this.client.activate();
+  }
+
+  /**
+   * Extends the deactivate method of the StompJs client
+   */
+  public deactivate(): void {
+    this.validateFields();
+
+    this.client.deactivate();
+  }
+
+  /**
+   * Extends the publish method of the StompJs client
+   *
+   * @param body - a stringified JSON object
+   */
+  public publish(body: string): void {
+    this.validateFields();
+
+    this.client.publish({
+      destination: this.destination as string,
+      body: body,
+    });
   }
 }

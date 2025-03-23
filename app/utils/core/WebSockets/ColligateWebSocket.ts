@@ -131,12 +131,12 @@ export default class ColligateWebSocket {
    *
    * @param content - the content to inject in payload
    */
-  public send({ content }: { content: string }): void {
+  public send(kv: { [key: string]: string }): void {
     this.validateFields();
-
+    console.log(JSON.stringify);
     this.client.publish({
       destination: this.destination as string,
-      body: JSON.stringify({ "content": content }),
+      body: JSON.stringify(kv),
     });
   }
 

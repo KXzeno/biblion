@@ -64,7 +64,7 @@ export async function GET(req: Request) {
 
   const msg = isRateLimited ? RateLimitActivation.ON : RateLimitActivation.OFF;
 
-  const parts = makeWellFormed([msg]);
+  const parts = makeWellFormed([`${msg}:${rate}`]);
   const blob = new Blob(parts, { type: 'text/plain' });
 
   return new Response(blob);

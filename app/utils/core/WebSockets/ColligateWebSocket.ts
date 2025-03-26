@@ -85,7 +85,7 @@ export default class ColligateWebSocket {
       throw new Error('Endpoint is not a string')
     }
 
-    const wsUrlPattern = /ws\:\/\/[\w\d\:\-\.]/;
+    const wsUrlPattern = /(?:ws|wss)\:\/\/[\w\d\:\-\.]/;
     if (ep.match(wsUrlPattern) === null) {
       throw new Error('Invalid endpoint');
     }
@@ -133,7 +133,6 @@ export default class ColligateWebSocket {
    */
   public send(kv: { [key: string]: string }): void {
     this.validateFields();
-    console.log(JSON.stringify);
     this.client.publish({
       destination: this.destination as string,
       body: JSON.stringify(kv),

@@ -46,7 +46,10 @@ export async function GET(req: Request) {
       throw new Error('Client IP not found.');
     }
 
-    origin = { id: clientIp };
+    origin = { 
+      id: clientIp,
+      updatedAt: new Date(),
+    };
 
     const createOrigin = db.origin.create({ data: origin });
 

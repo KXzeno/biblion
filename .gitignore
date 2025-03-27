@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# db
+prisma/migrations
+
+# unreleased
+app/components/providers/AppProvider/
+app/components/providers/UserProvider/
+app/components/providers/AuthProvider/
+app/components/actions/append.tsx
+
+# dev-route
+app/test/

@@ -51,3 +51,9 @@ app/components/actions/append.tsx
 
 # dev-route
 app/test/
+
+# java
+MANIFEST.MF
+app/utils/**/*.class
+app/utils/**/*.java
+libs/**/*.jar

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build-workers": "tsc --project tsconfig.workers.json",
+    "build-workers-watch": "tsc --project tsconfig.workers.json --watch",
     "dev": "npm run build-workers && next dev --turbopack",
     "build": "npm run build-workers && next build",
     "start": "npm run build-workers && next start",

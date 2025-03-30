@@ -57,3 +57,6 @@ MANIFEST.MF
 app/utils/**/*.class
 app/utils/**/*.java
 libs/**/*.jar
+
+# workers
+public/workers/*

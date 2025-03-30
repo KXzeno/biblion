@@ -1,11 +1,12 @@
 {
   "name": "biblion",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+    "build-workers": "tsc --project tsconfig.workers.json",
+    "dev": "npm run build-workers && next dev --turbopack",
+    "build": "npm run build-workers && next build",
+    "start": "npm run build-workers && next start",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch"

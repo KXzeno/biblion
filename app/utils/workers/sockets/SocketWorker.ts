@@ -1,6 +1,7 @@
 class SocketLoader {
   public port: MessagePort;
   public loaded: boolean;
+  private focused: boolean = false;
   private id: string | null = null;
 
   constructor(port: MessagePort, loaded: boolean) {
@@ -15,6 +16,10 @@ class SocketLoader {
   public getId(): string | null {
     return this.id;
   }
+
+  public setFocused(bool: boolean) {
+    this.focused = bool;
+  }
 }
 
 let carriers: Array<SocketLoader> = [];
@@ -27,6 +32,8 @@ onconnect = function (event: MessageEvent) {
   carriers.push(new SocketLoader(port, carriers.length === 0 || !anyLoaded));
 
   port.onmessage = function (e: MessageEvent) {
+    console.log('O');
+    console.log(carriers);
     const kv = (e.data as string).split(/\:/);
 
     if (kv.length <= 1) {
@@ -53,8 +60,25 @@ onconnect = function (event: MessageEvent) {
         carriers = carriers.filter(carrier => carrier.getId() !== loader.getId());
         break;
       }
+      case 'FOCUS': {
+        const loader = carriers.find(carrier => carrier.getId() === kv[1]);
+        if (!loader) {
+          throw new Error("Port retrieval failed");
+        }
+
+        const parsedInt = Number.parseInt(kv[2]);
+        const focused = !Number.isNaN(parsedInt) ? !!parsedInt : null;
+
+        if (focused === null || kv[2] === undefined) {
+          throw new Error('Invalid boolean entry');
+        }
+
+        loader.setFocused(focused);
+        break;
+      }
     }
 
+    console.log("S");
     console.log(carriers);
 
     const workerRes: string = `port: ${e.data} - ${e.data}`;

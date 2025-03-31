@@ -9,5 +9,6 @@
     "outDir": "public/workers",
     "skipLibCheck": true
   },
-  "include": ["app/utils/workers/**/*.ts"]
+  "include": ["app/utils/workers/*/*.ts"],
+  "exclude": ["app/utils/workers/types"]
 }

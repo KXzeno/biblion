@@ -62,6 +62,14 @@ class SocketLoader {
   }
 }
 
+// Create enum values for switch operations
+enum WorkerTask {
+  Id = "ID",
+  Disconnect = "DISCONNECT",
+  Focus = "FOCUS",
+  Send = "SEND",
+}
+
 // Initialize mutable array for client(s) synchronization
 let carriers: Array<SocketLoader> = [];
 
@@ -101,7 +109,7 @@ onconnect = function (event: MessageEvent) {
         loader.setId(kv[1]);
         break;
       }
-      case 'DISCONNECT': {
+      case WorkerTask.Id: {
         const loader = carriers.find(carrier => carrier.getId() === kv[1]);
         if (!loader) {
           throw new Error("Port retrieval failed");
@@ -110,7 +118,7 @@ onconnect = function (event: MessageEvent) {
         loader.port.close();
         break;
       }
-      case 'FOCUS': {
+      case WorkerTask.Focus: {
         const loader = carriers.find(carrier => carrier.getId() === kv[1]);
         if (!loader) {
           throw new Error("Port retrieval failed");
@@ -127,7 +135,7 @@ onconnect = function (event: MessageEvent) {
         loader.setFocused();
         break;
       }
-      case 'SEND': {
+      case WorkerTask.Send: {
         /** 
          * Define data and target active stompjs client for transmission
          * Split into three as input has its own delimiter

@@ -127,20 +127,25 @@ onconnect = function (event: MessageEvent) {
         loader.setFocused();
         break;
       }
-      case 'LOADED': {
-
+      case 'SEND': {
+        /** 
+         * Define data and target active stompjs client for transmission
+         * Split into three as input has its own delimiter
+         *
+         * @example
+         * `user:7` -> `SEND:user:7`
+         */
+        const workerRes: string = e.data.slice(5);
+        const target = carriers.find(carrier => carrier.loaded === true);
+        console.log(carriers);
+        if (target) {
+          if (!(target instanceof SocketLoader)) {
+            throw new Error('No SocketLoaders');
+          }
+          target.port.postMessage(workerRes);
+        }
+        break;
       }
-    }
-
-    // Define data and target active stompjs client for transmission
-    const workerRes: string = `port: ${e.data} - ${e.data}`;
-    const target = carriers.find(carrier => carrier.loaded === true);
-    console.log(carriers);
-    if (target) {
-      if (!(target instanceof SocketLoader)) {
-        throw new Error('No SocketLoaders');
-      }
-      target.port.postMessage(workerRes);
     }
   }
 }

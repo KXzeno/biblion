@@ -42,6 +42,11 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = React.useReducer<ReducerState, [ReducerAction]>(reducer, initialData);
   // TODO: Create logic that updates new rates for all clients
   // TODO: Test if API can be hit on all unload
+
+  /**
+   * A memoized function to send from "proxies" to 
+   * the main thread containing the stompjs client
+   */
   const sendFromProxy = React.useCallback(() => {
     console.log(state.pendingSignal);
     if (state.client && state.pendingSignal.length > 0) {
@@ -52,21 +57,29 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
   }, [state.pendingSignal]);
 
   React.useEffect(() => {
+    // Execute if browser has web worker accessibility
     if (!!window.SharedWorker) {
       const workerOptions: WorkerOptions = {
         name: "socketWorker",
         type: "module",
       }
 
+      // Initialize a worker and worker id that exists on mount
       const nonceWorker = new SharedWorker("workers/SocketWorker.js", workerOptions);
       const id = crypto.randomUUID();
+
+      // Initialize a named object containing worker definitions
       const nonceCarrier = { worker: nonceWorker, id };
+
+      // Due to a mount-only persistence, preserve the carrier via reducer state
       dispatch({ type: ActionType.Carrier, payload: { carrier: nonceCarrier } });
 
+      // Initialize ID in the SharedWorker
       nonceWorker.port.postMessage(`ID:${id}`);
 
       nonceWorker.port.onmessage = (e: MessageEvent) => {
         switch (typeof e.data) {
+          // Boolean values indicate client creations
           case 'boolean': {
             if (e.data === true) {
               /** For production */
@@ -77,7 +90,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
                 DISCORD_WH_ENDPOINT,
               } = process.env;
 
-              /** For development */
+              // Initialize stompjs client via abstraction from ColligateWebSocket
               const stompClient = new ColligateWebSocket({
                 endpoint: C_ENDPOINT,
                 destination: C_DESTINATION,
@@ -86,10 +99,12 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
 
               stompClient.handleConnect({
                 extFn() {
+                  // TODO: Investigate inutility
                 },
                 intFn(content) {
                   dispatch({ type: ActionType.Signal, payload: { signal: content } });
                   try {
+                    // fetch(DISCORD_WH_ENDPOINT, {
                     fetch(DISCORD_WH_ENDPOINT as string, {
                       method: 'POST',
                       headers: {
@@ -104,17 +119,17 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
                   }
                 },
               });
-
               stompClient.handleErrors();
-
               stompClient.activate();
 
+              // Due to a mount-only persistence, preserve the client via reducer state
               dispatch({ type: ActionType.Client, payload: { client: stompClient } });
               break;
             }
-            // False
+            // Control flow hit 'false'
             break;
           }
+          // String values indicate data traversal via workers to a target client
           case 'string': {
             dispatch({ type: ActionType.Offload, payload: { pendingSignal: e.data } });
             break;
@@ -122,20 +137,27 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
         }
       };
 
+      // TODO: Implement unload logic (within library)
       const unloadHandler = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Unload);
+
+      // Communicates last and current focused client to web worker
       const focusHandler = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Focus, '1');
 
       window.onbeforeunload = unloadHandler;
       window.onfocus = focusHandler;
     }
 
+    // Cleanup
     return () => {
       window.onbeforeunload = null;
       window.onfocus = null;
     };
   }, []);
 
-  function sendMsg() {
+  /**
+   * Transmits then resets current value in `rates`
+   */
+  function sendMsg(): void {
     if (state.carrier.worker) {
       const { port } = state.carrier.worker;
       if (state.client) {

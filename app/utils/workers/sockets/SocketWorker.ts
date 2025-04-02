@@ -200,13 +200,23 @@ onconnect = function (event: MessageEvent) {
         const carrierCount = SocketLoader.getCarriers().length;
 
         // TODO: Implement cookie and database logic
+        if (socketLoader.loaded && carrierCount === 0) {
+          const body = JSON.stringify({ sighted: kv[2] });
+
+          fetch("http://biblion.karnovah.com/api/v1/update-rates", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body,
+          }).catch(exc => console.error(exc));
+        }
 
         // Delegate rates and initialize stompjs to another client
         if (socketLoader.loaded && carrierCount >= 1) {
           const rate = kv[2];
           // console.log(rate);
 
-          // TODO: NULLIFY FOCUS WHEN DELETED
           if (Object.is(socketLoader, SocketLoader.focused) && SocketLoader.lastFocused instanceof SocketLoader) {
             if (SocketLoader.lastFocused !== null) {
               // Delegate to last focused

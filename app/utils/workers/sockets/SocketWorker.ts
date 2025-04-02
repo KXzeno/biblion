@@ -203,7 +203,7 @@ onconnect = function (event: MessageEvent) {
         if (socketLoader.loaded && carrierCount === 0) {
           const body = JSON.stringify({ sighted: kv[2] });
 
-          fetch("http://biblion.karnovah.com/api/v1/update-rates", {
+          fetch("https://biblion.karnovah.com/api/v1/update-rates", {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -214,7 +214,7 @@ onconnect = function (event: MessageEvent) {
 
         // Delegate rates and initialize stompjs to another client
         if (socketLoader.loaded && carrierCount >= 1) {
-          const rate = kv[2];
+          // const rate = kv[2];
           // console.log(rate);
 
           if (Object.is(socketLoader, SocketLoader.focused) && SocketLoader.lastFocused instanceof SocketLoader) {

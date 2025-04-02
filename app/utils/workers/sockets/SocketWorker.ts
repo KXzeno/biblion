@@ -21,7 +21,6 @@ class SocketLoader {
     this.port = port; 
     SocketLoader.lastFocused = this;
     SocketLoader.carriers.push(this);
-    console.log(SocketLoader.carriers);
     SocketLoader.connected++;
   }
 
@@ -51,7 +50,12 @@ class SocketLoader {
     if (Object.is(SocketLoader.focused, this)) {
       return;
     }
-    SocketLoader.lastFocused = SocketLoader.focused;
+
+    // Do not set last focused if it had been removed
+    if (SocketLoader.lastFocused !== null && SocketLoader.carriers.includes(SocketLoader.lastFocused)) {
+      SocketLoader.lastFocused = SocketLoader.focused;
+    }
+
     SocketLoader.focused = this;
   }
 
@@ -63,6 +67,10 @@ class SocketLoader {
    * @returns the state's binary assignment
    */
   public setLoaded(bool: boolean): boolean {
+    // If setting last focused, null the field
+    if (Object.is(this, SocketLoader.lastFocused)) {
+      SocketLoader.lastFocused = null;
+    }
     return this.loaded = bool;
   }
 
@@ -73,8 +81,12 @@ class SocketLoader {
    */
   public remove(): SocketLoader {
     SocketLoader.carriers = SocketLoader.carriers.filter(carrier => carrier.id !== this.id);
+
+    if (Object.is(this, SocketLoader.lastFocused)) {
+      SocketLoader.lastFocused = null;
+    }
+
     SocketLoader.connected--;
-    console.log(SocketLoader.connected);
     return this;
   }
 
@@ -184,32 +196,32 @@ onconnect = function (event: MessageEvent) {
       }
       // Removes from active loaders and signals database / cookie updates
       case WorkerTask.Disconnect: {
-        console.log('ENTERED DISCONNECT');
         socketLoader.remove();
         const carrierCount = SocketLoader.getCarriers().length;
-        console.log(SocketLoader.getCarriers());
-        console.log(SocketLoader);
+
         // TODO: Implement cookie and database logic
 
         // Delegate rates and initialize stompjs to another client
-        if (socketLoader.loaded && carrierCount > 1) {
+        if (socketLoader.loaded && carrierCount >= 1) {
           const rate = kv[2];
-          console.log(rate);
-          if (Object.is(socketLoader, SocketLoader.focused)) {
+          // console.log(rate);
+
+          // TODO: NULLIFY FOCUS WHEN DELETED
+          if (Object.is(socketLoader, SocketLoader.focused) && SocketLoader.lastFocused instanceof SocketLoader) {
             if (SocketLoader.lastFocused !== null) {
-              // Delegated to last focused
+              // Delegate to last focused
               SocketLoader.lastFocused.port.postMessage(!anyLoaded);
               SocketLoader.lastFocused.setLoaded(true);
             }
-          } else if (SocketLoader.focused !== null) {
-            // Delegated to focused
+          } else if (!Object.is(socketLoader, SocketLoader.focused) && SocketLoader.focused !== null) {
+            // Delegate to focused
             SocketLoader.focused.port.postMessage(!anyLoaded);
             SocketLoader.focused.setLoaded(true);
-          }        
-        } else if (socketLoader.loaded && carrierCount === 1) {
-          // Delegated to last carrier
-          const target = SocketLoader.delegateToFirst();
-          target.port.postMessage(anyLoaded);
+          } else {
+            // Delegate to last carrier
+            const target = SocketLoader.delegateToFirst();
+            target.port.postMessage(anyLoaded);
+          }
         }
         break;
       }

@@ -3,7 +3,6 @@
 import React from "react";
 import "dotenv/config";
 
-import ColligateWebSocket from "@/utils/core/WebSockets";
 import { SocketContext, SocketDispatchContext } from "@/providers/SocketProvider";
 import { ActionType } from "../providers/SocketProvider/SocketProvider.types";
 

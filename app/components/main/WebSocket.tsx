@@ -4,10 +4,18 @@ import React from "react";
 import "dotenv/config";
 
 import ColligateWebSocket from "@/utils/core/WebSockets";
-import { SocketContext } from "@/providers/SocketProvider";
+import { SocketContext, SocketDispatchContext } from "@/providers/SocketProvider";
+import { ActionType } from "../providers/SocketProvider/SocketProvider.types";
 
 export default function WebSocket() {
-  const { send, signals, rates, setRates } = React.useContext(SocketContext);
+  const { send, signals, rates, client, sendFromProxy, pendingSignal } = React.useContext(SocketContext);
+  const { dispatch } = React.useContext(SocketDispatchContext);
+
+  React.useEffect(() => {
+    if (client !== null && client.initialized) {
+      sendFromProxy();
+    }
+  }, [pendingSignal]);
 
   return (
     <div>
@@ -17,7 +25,7 @@ export default function WebSocket() {
         placeholder="Enter num"
         value={rates}
         onChange={(e) => {
-          setRates(e.target.value);
+          dispatch({ type: ActionType.Rate, payload: { rates: e.target.value } });
         }}
       />
       <button 

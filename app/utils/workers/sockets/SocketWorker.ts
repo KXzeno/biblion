@@ -184,27 +184,32 @@ onconnect = function (event: MessageEvent) {
       }
       // Removes from active loaders and signals database / cookie updates
       case WorkerTask.Disconnect: {
+        console.log('ENTERED DISCONNECT');
         socketLoader.remove();
         const carrierCount = SocketLoader.getCarriers().length;
         console.log(SocketLoader.getCarriers());
+        console.log(SocketLoader);
         // TODO: Implement cookie and database logic
 
         // Delegate rates and initialize stompjs to another client
-        if (socketLoader.loaded && carrierCount > 0) {
+        if (socketLoader.loaded && carrierCount > 1) {
           const rate = kv[2];
           console.log(rate);
           if (Object.is(socketLoader, SocketLoader.focused)) {
             if (SocketLoader.lastFocused !== null) {
-              console.log(`Sending to last focused`);
+              // Delegated to last focused
               SocketLoader.lastFocused.port.postMessage(!anyLoaded);
+              SocketLoader.lastFocused.setLoaded(true);
             }
           } else if (SocketLoader.focused !== null) {
-              console.log(`Sending to focused`);
+            // Delegated to focused
             SocketLoader.focused.port.postMessage(!anyLoaded);
-          } else {
-            console.log(`Sending to next`);
-            SocketLoader.delegateToFirst();
-          }
+            SocketLoader.focused.setLoaded(true);
+          }        
+        } else if (socketLoader.loaded && carrierCount === 1) {
+          // Delegated to last carrier
+          const target = SocketLoader.delegateToFirst();
+          target.port.postMessage(anyLoaded);
         }
         break;
       }

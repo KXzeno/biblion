@@ -58,6 +58,15 @@ export default class ColligateWebSocket {
   }
 
   /**
+   * Allows implementation for the disconnect event
+   *
+   * @param fn - the callback to invoke on disconnect
+   */
+  public handleDisconnect(fn: () => void): void {
+    this.client.onDisconnect = fn;
+  }
+
+  /**
    * Defines the websocket's error handling fields 
    */
   public handleErrors(): void {

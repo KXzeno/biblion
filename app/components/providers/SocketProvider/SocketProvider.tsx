@@ -48,9 +48,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
    * the main thread containing the stompjs client
    */
   const sendFromProxy = React.useCallback(() => {
-    console.log(state.pendingSignal);
     if (state.client && state.pendingSignal.length > 0) {
-      console.log('Client sends?');
       state.client.send({ sighted: `${state.pendingSignal}` });
     }
     dispatch({ type: ActionType.Offload, payload: { pendingSignal: "" } });
@@ -82,7 +80,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
 
       nonceWorker.port.onmessage = (e: MessageEvent) => {
         switch (typeof e.data) {
-            // Boolean values indicate client creations
+          // Boolean values indicate client creations
           case 'boolean': {
             if (e.data === true) {
               const { 
@@ -132,7 +130,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
             // Control flow hit 'false'
             break;
           }
-            // String values indicate data traversal via workers to a target client
+          // String values indicate data traversal via workers to a target client
           case 'string': {
             dispatch({ type: ActionType.Offload, payload: { pendingSignal: e.data } });
             break;

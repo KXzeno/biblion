@@ -4,38 +4,52 @@ import React from "react";
 import "dotenv/config";
 
 import ColligateWebSocket from "@/utils/core/WebSockets";
-import { SharedWorkerCarrier } from "@/utils/workers";
-import { handleWorkerEvent } from "@/utils/auxil/socketWorkerTasks";
+import { 
+  handleWorkerEvent,
+  socketProviderReducer as reducer
+} from "@/utils/auxil/socketWorkerTasks";
 import { SocketWorkerEvent } from "@/utils/workers/types/workers.types";
-import { type ContextData } from "@/providers/SocketProvider/SocketProvider.types";
+import { 
+  type ContextData,
+  type DispatchContextData,
+  type ReducerState,
+  type ReducerAction,
+  ActionType,
+} from "@/providers/SocketProvider/SocketProvider.types";
 
 export const SocketContext: React.Context<ContextData> = React.createContext({
   send: () => {},
   signals: [""],
   pendingSignal: "",
   rates: "",
-  setRates: (() => {}) as ContextData['setRates'],
   sendFromProxy: () => {},
   client: null as ColligateWebSocket | null,
 });
 
-export default function WebSocket({ children }: { children: React.ReactNode }) {
-  const [signals, setSignals] = React.useState<Array<string>>([]);
-  const [pendingSignal, setPendingSignal] = React.useState<string>("");
-  const [rates, setRates] = React.useState<string>("");
-  const [carrier, setCarrier] = React.useState<SharedWorkerCarrier>({ worker: null, id: null });
-  const [client, setClient] = React.useState<ColligateWebSocket | null>(null);
+export const SocketDispatchContext: React.Context<DispatchContextData> = React.createContext({
+  dispatch: (() => {}) as DispatchContextData['dispatch'],
+});
 
+export default function WebSocket({ children }: { children: React.ReactNode }) {
+  const initialData = {
+    carrier: { worker: null, id: null },
+    client: null,
+    signals: [],
+    rates: "",
+    pendingSignal: "",
+  }
+
+  const [state, dispatch] = React.useReducer<ReducerState, [ReducerAction]>(reducer, initialData);
   // TODO: Create logic that updates new rates for all clients
-  // TODO: Transform states to reducer and create dispatcher context
+  // TODO: Test if API can be hit on all unload
   const sendFromProxy = React.useCallback(() => {
-    console.log(pendingSignal);
-    if (client && pendingSignal.length > 0) {
+    console.log(state.pendingSignal);
+    if (state.client && state.pendingSignal.length > 0) {
       console.log('Client sends?');
-      client.send({ sighted: `${pendingSignal}` });
+      state.client.send({ sighted: `${state.pendingSignal}` });
     }
-    setPendingSignal("");
-  }, [pendingSignal]);
+    dispatch({ type: ActionType.Offload, payload: { pendingSignal: "" } });
+  }, [state.pendingSignal]);
 
   React.useEffect(() => {
     if (!!window.SharedWorker) {
@@ -47,7 +61,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
       const nonceWorker = new SharedWorker("workers/SocketWorker.js", workerOptions);
       const id = crypto.randomUUID();
       const nonceCarrier = { worker: nonceWorker, id };
-      setCarrier(() => nonceCarrier);
+      dispatch({ type: ActionType.Carrier, payload: { carrier: nonceCarrier } });
 
       nonceWorker.port.postMessage(`ID:${id}`);
 
@@ -55,14 +69,15 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
         switch (typeof e.data) {
           case 'boolean': {
             if (e.data === true) {
-              // Initialize socket
-
               /** For production */
-              // const { C_ENDPOINT, C_DESTINATION, C_BROADCAST } = process.env;
+              const { 
+                C_ENDPOINT, 
+                C_DESTINATION, 
+                C_BROADCAST,
+                DISCORD_WH_ENDPOINT,
+              } = process.env;
 
               /** For development */
-              const [ C_ENDPOINT, C_DESTINATION, C_BROADCAST ] = ["wss://biblion-colligate.onrender.com/colligate-websocket", "/app/observe/0", "/temp/audits/0" ];
-
               const stompClient = new ColligateWebSocket({
                 endpoint: C_ENDPOINT,
                 destination: C_DESTINATION,
@@ -73,9 +88,9 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
                 extFn() {
                 },
                 intFn(content) {
-                  setSignals((prev) => [...prev, content]);
+                  dispatch({ type: ActionType.Signal, payload: { signal: content } });
                   try {
-                    fetch("https://discord.com/api/webhooks/1355217343109795933/qe744baN1kkgcCK5-GmjlNAoctTUlhPNBhvageQtjykPX8aA9kLSKx4p_7wRKOPUe7gv", {
+                    fetch(DISCORD_WH_ENDPOINT as string, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
@@ -94,14 +109,14 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
 
               stompClient.activate();
 
-              setClient(() => stompClient);
+              dispatch({ type: ActionType.Client, payload: { client: stompClient } });
               break;
             }
             // False
             break;
           }
           case 'string': {
-            setPendingSignal(e.data);
+            dispatch({ type: ActionType.Offload, payload: { pendingSignal: e.data } });
             break;
           }
         }
@@ -121,14 +136,14 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
   }, []);
 
   function sendMsg() {
-    if (carrier.worker) {
-      const { port } = carrier.worker;
-      if (client) {
-        client.send({ sighted: rates });
+    if (state.carrier.worker) {
+      const { port } = state.carrier.worker;
+      if (state.client) {
+        state.client.send({ sighted: state.rates });
         return;
       }
-      port.postMessage(`SEND:${rates}`);
-      setRates("");
+      port.postMessage(`SEND:${state.rates}`);
+      dispatch({ type: ActionType.Rate, payload: { rates: "" } });
     }
   }
 
@@ -136,14 +151,15 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
     <SocketContext.Provider 
       value={{ 
         send: sendMsg,
-        signals,
-        rates, setRates,
+        signals: state.signals,
+        rates: state.rates,
         sendFromProxy,
-        client,
-        pendingSignal,
-      }}
-    >
-      {children}
+        client: state.client,
+        pendingSignal: state.pendingSignal,
+      }}>
+      <SocketDispatchContext.Provider value={{dispatch}}>
+        {children}
+      </SocketDispatchContext.Provider>
     </SocketContext.Provider>
   );
 }

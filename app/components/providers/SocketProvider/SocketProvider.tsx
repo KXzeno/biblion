@@ -54,9 +54,12 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
       state.client.send({ sighted: `${state.pendingSignal}` });
     }
     dispatch({ type: ActionType.Offload, payload: { pendingSignal: "" } });
-  }, [state.pendingSignal]);
+  }, [state.client, state.pendingSignal]);
 
   React.useEffect(() => {
+    // Reference to client for unload event handling
+    let nonceRates: number = 0;
+
     // Execute if browser has web worker accessibility
     if (!!window.SharedWorker) {
       const workerOptions: WorkerOptions = {
@@ -79,10 +82,9 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
 
       nonceWorker.port.onmessage = (e: MessageEvent) => {
         switch (typeof e.data) {
-          // Boolean values indicate client creations
+            // Boolean values indicate client creations
           case 'boolean': {
             if (e.data === true) {
-              /** For production */
               const { 
                 C_ENDPOINT, 
                 C_DESTINATION, 
@@ -103,8 +105,8 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
                 },
                 intFn(content) {
                   dispatch({ type: ActionType.Signal, payload: { signal: content } });
+                  nonceRates = Number.parseInt(content.split(/\-/)[1]);
                   try {
-                    // fetch(DISCORD_WH_ENDPOINT, {
                     fetch(DISCORD_WH_ENDPOINT as string, {
                       method: 'POST',
                       headers: {
@@ -119,6 +121,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
                   }
                 },
               });
+
               stompClient.handleErrors();
               stompClient.activate();
 
@@ -129,7 +132,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
             // Control flow hit 'false'
             break;
           }
-          // String values indicate data traversal via workers to a target client
+            // String values indicate data traversal via workers to a target client
           case 'string': {
             dispatch({ type: ActionType.Offload, payload: { pendingSignal: e.data } });
             break;
@@ -138,7 +141,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
       };
 
       // TODO: Implement unload logic (within library)
-      const unloadHandler = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Unload);
+      const unloadHandler = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Unload, `${nonceRates}`);
 
       // Communicates last and current focused client to web worker
       const focusHandler = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Focus, '1');
@@ -162,6 +165,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
       const { port } = state.carrier.worker;
       if (state.client) {
         state.client.send({ sighted: state.rates });
+        dispatch({ type: ActionType.Rate, payload: { rates: "" } });
         return;
       }
       port.postMessage(`SEND:${state.rates}`);
@@ -173,9 +177,9 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
     <SocketContext.Provider 
       value={{ 
         send: sendMsg,
+        sendFromProxy,
         signals: state.signals,
         rates: state.rates,
-        sendFromProxy,
         client: state.client,
         pendingSignal: state.pendingSignal,
       }}>

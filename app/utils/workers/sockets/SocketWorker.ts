@@ -128,9 +128,6 @@ enum WorkerTask {
   Send = "SEND",
 }
 
-// Initialize mutable array for client(s) synchronization
-let carriers: Array<SocketLoader> = [];
-
 // Implement worker's connect handler
 onconnect = function (event: MessageEvent) {
   const port: MessagePort = event.ports[0];

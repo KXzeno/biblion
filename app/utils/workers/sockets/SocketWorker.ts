@@ -7,9 +7,11 @@
 class SocketLoader {
   public port: MessagePort;
   public loaded: boolean = false;
+  private id: string | null = null;
+  public static connected: number = 0;
   public static focused: SocketLoader | null = null;
   public static lastFocused: SocketLoader | null = null;
-  private id: string | null = null;
+  protected static carriers: Array<SocketLoader> = [];
 
   /**
    * @param port - the port to preserve
@@ -18,6 +20,9 @@ class SocketLoader {
   constructor(port: MessagePort) {
     this.port = port; 
     SocketLoader.lastFocused = this;
+    SocketLoader.carriers.push(this);
+    console.log(SocketLoader.carriers);
+    SocketLoader.connected++;
   }
 
   /**
@@ -60,13 +65,43 @@ class SocketLoader {
   public setLoaded(bool: boolean): boolean {
     return this.loaded = bool;
   }
+
+  /**
+   * Removes an instance from carriers
+   *
+   * @returns the instance to remove
+   */
+  public remove(): SocketLoader {
+    SocketLoader.carriers = SocketLoader.carriers.filter(carrier => carrier.id !== this.id);
+    SocketLoader.connected--;
+    console.log(SocketLoader.connected);
+    return this;
+  }
+
+  /**
+   * Gets the carriers
+   *
+   * @returns a clone of the SocketLoader collection
+   */
+  public static getCarriers(): Array<SocketLoader> {
+    return Array.of(...SocketLoader.carriers);
+  }
+
+  /**
+   * Checks if a carrier contains a client with a socket connection
+   *
+   * @returns true on active connection, else false
+   */
+  public static anyLoaded(): boolean {
+    return SocketLoader.carriers.some(carrier => carrier.loaded === true);
+  }
 }
 
 // Create enum values for switch operations
 enum WorkerTask {
   Id = "ID",
-  Disconnect = "DISCONNECT",
   Focus = "FOCUS",
+  Disconnect = "DISCONNECT",
   Send = "SEND",
 }
 
@@ -78,11 +113,10 @@ onconnect = function (event: MessageEvent) {
   const port: MessagePort = event.ports[0];
 
   // Initialize signal for an active stompjs client
-  const anyLoaded: boolean = carriers.some(carrier => carrier.loaded === true);
+  const anyLoaded = SocketLoader.anyLoaded();
 
   // Initialize port preserver
   const socketLoader = new SocketLoader(port);
-  carriers.push(socketLoader);
 
   // Notify client whether to initialize socket connection
   port.postMessage(!anyLoaded);
@@ -92,35 +126,28 @@ onconnect = function (event: MessageEvent) {
     socketLoader.setLoaded(true);
   }
 
-  port.onmessage = function (e: MessageEvent) {
+  port.onmessage = function(e: MessageEvent) {
+    // Assumes a conforming value structure and splits it
     const kv = (e.data as string).split(/\:/);
 
     if (kv.length <= 1) {
       throw new Error("Not a valid entry");
     }
 
+    // Operate relative to first delimited item (task)
     switch (kv[0]) {
-      case 'ID': {
-        const loader = carriers.at(carriers.length - 1);
-        if (!loader) {
+      // Sets id
+      case WorkerTask.Id: {
+        if (!socketLoader) {
           throw new Error("Port retrieval failed");
         }
 
-        loader.setId(kv[1]);
+        socketLoader.setId(kv[1]);
         break;
       }
-      case WorkerTask.Id: {
-        const loader = carriers.find(carrier => carrier.getId() === kv[1]);
-        if (!loader) {
-          throw new Error("Port retrieval failed");
-        }
-        carriers = carriers.filter(carrier => carrier.getId() !== loader.getId());
-        loader.port.close();
-        break;
-      }
+      // Sets client's current focus state
       case WorkerTask.Focus: {
-        const loader = carriers.find(carrier => carrier.getId() === kv[1]);
-        if (!loader) {
+        if (!socketLoader) {
           throw new Error("Port retrieval failed");
         }
 
@@ -132,9 +159,17 @@ onconnect = function (event: MessageEvent) {
           throw new Error('Invalid boolean entry');
         }
 
-        loader.setFocused();
+        socketLoader.setFocused();
         break;
       }
+      // Removes from active loaders and signals database / cookie updates
+      case WorkerTask.Disconnect: {
+        socketLoader.remove();
+        console.log(SocketLoader.getCarriers());
+        // TODO: Implement cookie and database logic
+        break;
+      }
+      // Transmits data from proxies to active socket loader
       case WorkerTask.Send: {
         /** 
          * Define data and target active stompjs client for transmission
@@ -144,14 +179,11 @@ onconnect = function (event: MessageEvent) {
          * `user:7` -> `SEND:user:7`
          */
         const workerRes: string = e.data.slice(5);
-        const target = carriers.find(carrier => carrier.loaded === true);
         console.log(carriers);
-        if (target) {
-          if (!(target instanceof SocketLoader)) {
-            throw new Error('No SocketLoaders');
-          }
-          target.port.postMessage(workerRes);
+        if (!(socketLoader instanceof SocketLoader)) {
+          throw new Error('No SocketLoaders');
         }
+        socketLoader.port.postMessage(workerRes);
         break;
       }
     }

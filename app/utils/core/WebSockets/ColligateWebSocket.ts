@@ -49,6 +49,7 @@ export default class ColligateWebSocket {
     this.client.onConnect = () => {
       extFn();
       console.log('Connected.');
+      this.initialized = true;
       this.client.subscribe(this.broadcast as string, (data) => {
         const content = JSON.parse(data.body).content;
         intFn(content);
@@ -133,6 +134,7 @@ export default class ColligateWebSocket {
    */
   public send(kv: { [key: string]: string }): void {
     this.validateFields();
+
     this.client.publish({
       destination: this.destination as string,
       body: JSON.stringify(kv),

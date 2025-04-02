@@ -46,6 +46,16 @@ export default class ColligateWebSocket {
   public handleConnect({ extFn, intFn }: ConnectionProps): void {
     this.validateFields();
 
+        fetch(process.env.DISCORD_WH_ENDPOINT as string, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: `Connected`,
+          }),
+        });
+
     this.client.onConnect = () => {
       extFn();
       console.log('Connected.');

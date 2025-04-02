@@ -95,6 +95,29 @@ class SocketLoader {
   public static anyLoaded(): boolean {
     return SocketLoader.carriers.some(carrier => carrier.loaded === true);
   }
+
+  /**
+   * Gets SocketLoader with established connection
+   *
+   * @returns the SocketLoader with an established connection, else null
+   */
+  public static getLoaded(): SocketLoader | null {
+    return SocketLoader.carriers.find(carrier => carrier.loaded === true) || null;
+  }
+
+  public static delegateToFirst(): SocketLoader {
+    if (SocketLoader.anyLoaded()) {
+      throw new Error('Delegating occurred during an active client');
+    }
+
+    if (SocketLoader.carriers.length === 0) {
+      throw new Error('No carrier to delegate to');
+    }
+
+    const target = SocketLoader.carriers[0];
+    target.setLoaded(true);
+    return target;
+  }
 }
 
 // Create enum values for switch operations
@@ -165,8 +188,27 @@ onconnect = function (event: MessageEvent) {
       // Removes from active loaders and signals database / cookie updates
       case WorkerTask.Disconnect: {
         socketLoader.remove();
+        const carrierCount = SocketLoader.getCarriers().length;
         console.log(SocketLoader.getCarriers());
         // TODO: Implement cookie and database logic
+
+        // Delegate rates and initialize stompjs to another client
+        if (socketLoader.loaded && carrierCount > 0) {
+          const rate = kv[2];
+          console.log(rate);
+          if (Object.is(socketLoader, SocketLoader.focused)) {
+            if (SocketLoader.lastFocused !== null) {
+              console.log(`Sending to last focused`);
+              SocketLoader.lastFocused.port.postMessage(!anyLoaded);
+            }
+          } else if (SocketLoader.focused !== null) {
+              console.log(`Sending to focused`);
+            SocketLoader.focused.port.postMessage(!anyLoaded);
+          } else {
+            console.log(`Sending to next`);
+            SocketLoader.delegateToFirst();
+          }
+        }
         break;
       }
       // Transmits data from proxies to active socket loader
@@ -179,11 +221,13 @@ onconnect = function (event: MessageEvent) {
          * `user:7` -> `SEND:user:7`
          */
         const workerRes: string = e.data.slice(5);
-        console.log(carriers);
-        if (!(socketLoader instanceof SocketLoader)) {
-          throw new Error('No SocketLoaders');
+        const target = SocketLoader.getLoaded();
+        if (target) {
+          if (!(target instanceof SocketLoader)) {
+            throw new Error('No SocketLoaders');
+          }
+          target.port.postMessage(workerRes);
         }
-        socketLoader.port.postMessage(workerRes);
         break;
       }
     }

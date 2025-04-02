@@ -14,11 +14,12 @@ export default function WebSocket() {
     if (client !== null && client.initialized) {
       sendFromProxy();
     }
+    console.log('test');
   }, [pendingSignal]);
 
   return (
     <div>
-      <h1>STOMP WebSocket</h1>
+      <h1>STOMP WebSocket{client !== null ? ' CONNECTED' : ''}</h1>
       <input 
         type="text"
         placeholder="Enter num"

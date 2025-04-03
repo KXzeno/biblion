@@ -15,6 +15,7 @@ import {
   type ReducerState,
   type ReducerAction,
   ActionType,
+  SocketProviderProps,
 } from "@/providers/SocketProvider/SocketProvider.types";
 
 export const SocketContext: React.Context<ContextData> = React.createContext({
@@ -30,7 +31,10 @@ export const SocketDispatchContext: React.Context<DispatchContextData> = React.c
   dispatch: (() => {}) as DispatchContextData['dispatch'],
 });
 
-export default function WebSocket({ children }: { children: React.ReactNode }) {
+export default function WebSocket(props: SocketProviderProps) {
+  const { children, DISCORD_WH_ENDPOINT, } = props;
+  const { C_ENDPOINT, C_DESTINATION, C_BROADCAST } = props.ColligateWebSocketConstructorParams;
+
   const initialData = {
     carrier: { worker: null, id: null },
     client: null,
@@ -83,13 +87,6 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
           // Boolean values indicate client creations
           case 'boolean': {
             if (e.data === true) {
-              const { 
-                C_ENDPOINT, 
-                C_DESTINATION, 
-                C_BROADCAST,
-                DISCORD_WH_ENDPOINT,
-              } = process.env;
-
               // Initialize stompjs client via abstraction from ColligateWebSocket
               const stompClient = new ColligateWebSocket({
                 endpoint: C_ENDPOINT,
@@ -105,7 +102,7 @@ export default function WebSocket({ children }: { children: React.ReactNode }) {
                   dispatch({ type: ActionType.Signal, payload: { signal: content } });
                   nonceRates = Number.parseInt(content.split(/\-/)[1]);
                   try {
-                    fetch(DISCORD_WH_ENDPOINT as string, {
+                    fetch(DISCORD_WH_ENDPOINT, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',

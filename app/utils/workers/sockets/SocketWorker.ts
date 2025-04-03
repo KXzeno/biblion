@@ -210,6 +210,7 @@ onconnect = function (event: MessageEvent) {
               'Content-Type': 'application/json'
             },
             body,
+            keepalive: true,
           })
             .then((res) => console.log(res))
             .catch(exc => console.error(exc));

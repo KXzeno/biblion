@@ -102,7 +102,7 @@ export default function WebSocket(props: SocketProviderProps) {
                   dispatch({ type: ActionType.Signal, payload: { signal: content } });
                   nonceRates = Number.parseInt(content.split(/\-/)[1]);
                   try {
-                    fetch(DISCORD_WH_ENDPOINT, {
+                    fetch(DISCORD_WH_ENDPOINT as string, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',

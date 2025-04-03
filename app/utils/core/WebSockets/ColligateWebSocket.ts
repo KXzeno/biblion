@@ -13,23 +13,28 @@ export default class ColligateWebSocket {
   private endpoint;
   private destination;
   private broadcast;
+  private webhookUrl;
   public initialized: boolean = false;
 
   /**
    * @param endpoint - the URL to connect to
    * @param destination - the route to receive data
    * @param broadcast - the network users subscribe to
+   * @param webhookUrl - the webhook to send connection-related events to
    */
   constructor({
     endpoint,
     destination,
-    broadcast
+    broadcast,
+    webhookUrl
   }: WSProps) {
     this.validateEndpoint(endpoint);
 
     this.endpoint = endpoint;
     this.destination = destination;
     this.broadcast = broadcast;
+
+    this.webhookUrl = webhookUrl ?? null;
 
     this.client = new Client({
       brokerURL: endpoint,
@@ -46,15 +51,17 @@ export default class ColligateWebSocket {
   public handleConnect({ extFn, intFn }: ConnectionProps): void {
     this.validateFields();
 
-        fetch(process.env.DISCORD_WH_ENDPOINT as string, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            content: `Connected`,
-          }),
-        });
+    if (this.webhookUrl !== null) {
+      fetch(this.webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: `Connected`,
+        }),
+      });
+    }
 
     this.client.onConnect = () => {
       extFn();

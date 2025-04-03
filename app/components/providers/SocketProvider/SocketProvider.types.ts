@@ -27,6 +27,16 @@ export interface ReducerAction {
   payload?: CarrierPayload | ClientPayload | SignalPayload | RatesPayload | PendingSignalPayload;
 }
 
+export interface SocketProviderProps {
+  children: React.ReactNode;
+  DISCORD_WH_ENDPOINT: string | undefined;
+  ColligateWebSocketConstructorParams: {
+    C_ENDPOINT: string | undefined;
+    C_DESTINATION: string | undefined;
+    C_BROADCAST: string | undefined;
+  }
+}
+
 export interface ClientPayload {
   client: ReducerState['client'];
 }

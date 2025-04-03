@@ -199,17 +199,20 @@ onconnect = function (event: MessageEvent) {
         socketLoader.remove();
         const carrierCount = SocketLoader.getCarriers().length;
 
-        // TODO: Implement cookie and database logic
         if (socketLoader.loaded && carrierCount === 0) {
           const body = JSON.stringify({ sighted: kv[2] || 0 });
+          console.log(body);
 
+          // TODO: Implement db logic in API and prevent external hits
           fetch("https://biblion.karnovah.com/api/v1/update-rates", {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body,
-          }).catch(exc => console.error(exc));
+          })
+            .then((res) => console.log(res))
+            .catch(exc => console.error(exc));
         }
 
         // Delegate rates and initialize stompjs to another client

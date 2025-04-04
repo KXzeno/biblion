@@ -13,6 +13,7 @@ export default function WebSocket() {
 
   React.useEffect(() => {
     if (client !== null && client.initialized) {
+      sendFromProxy();
     }
   }, [pendingSignal]);
 

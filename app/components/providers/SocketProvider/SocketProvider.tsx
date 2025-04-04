@@ -132,17 +132,41 @@ export default function WebSocket(props: SocketProviderProps) {
             dispatch({ type: ActionType.Offload, payload: { pendingSignal: e.data } });
             break;
           }
+          // Handle specialized requests
+          case 'object': {
+            // Handle keep-operational request
+            if ('keepAlive' in e.data) {
+              setTimeout(() => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.KeepAlive), 500);
+            }
+            break;
+          }
+          default: throw new Error('Not a valid data model');
         }
       };
 
-      // TODO: Implement unload logic (within library)
-      const unloadHandler = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Unload, `${nonceRates}`);
+      /**
+       * Ostensibly, using unload state would look feasible, but it's
+       * less performant, invoke at certain states, or not invoke at all
+       *
+       * @see {@link {https://developer.chrome.com/docs/web-platform/page-lifecycle-api#developer-recommendations-for-each-state}}
+       * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#event_type}
+       */
+
+      // Detects end of session and updates cookie / db
+      const terminateHandler = () => {
+        if (document.hidden) {
+          handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Terminate, `${nonceRates}`);
+        }
+      };
 
       // Communicates last and current focused client to web worker
       const focusHandler = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Focus, '1');
+      // document.addEventListener("visibilitychange", terminateHandler);
+      document.addEventListener("visibilitychange", terminateHandler);
 
-      window.onbeforeunload = unloadHandler;
-      window.onfocus = focusHandler;
+      window.addEventListener("focus", focusHandler);
+      // window.onbeforeunload = unloadHandler;
+      // window.onfocus = focusHandler;
     }
 
     // Cleanup

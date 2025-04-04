@@ -217,7 +217,7 @@ export default function WebSocket(props: SocketProviderProps) {
     if (state.carrier.worker) {
       const { port } = state.carrier.worker;
       if (state.client) {
-        state.client.send({ sighted: state.rates });
+        state.client.send({ sighted: `${state.carrier.id}:${state.rates}` });
         dispatch({ type: ActionType.Rate, payload: { rates: "" } });
         return;
       }

@@ -53,7 +53,7 @@ export default function WebSocket(props: SocketProviderProps) {
    */
   const sendFromProxy = React.useCallback(() => {
     if (state.client && state.pendingSignal.length > 0) {
-      state.client.send({ sighted: `${state.carrier.id}:${state.pendingSignal}` });
+      state.client.send({ sighted: state.pendingSignal });
     }
     dispatch({ type: ActionType.Offload, payload: { pendingSignal: "" } });
   }, [state.client, state.pendingSignal]);

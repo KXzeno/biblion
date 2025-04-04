@@ -29,19 +29,26 @@ export default function WebSocket() {
     <div>
       <h1>{`SHARED WORKER IS ${(supportsSharedWorker) ? 'SUPPORTED' : 'NOT SUPPORTED'}`}</h1>
       <h1>STOMP WebSocket{client !== null ? ' CONNECTED' : ''}</h1>
-      <input 
-        type="text"
-        placeholder="Enter num"
-        value={rates}
-        onChange={(e) => {
-          dispatch({ type: ActionType.Rate, payload: { rates: e.target.value } });
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          send();
         }}
-      />
-      <button 
-        onClick={send}
       >
-        Send
-      </button>
+        <input 
+          type="text"
+          placeholder="Enter num"
+          value={rates}
+          onChange={(e) => {
+            dispatch({ type: ActionType.Rate, payload: { rates: e.target.value } });
+          }}
+        />
+        <button 
+          onClick={send}
+        >
+          Send
+        </button>
+      </form>
       <div>
         <h2>Signals</h2>
         <ul>

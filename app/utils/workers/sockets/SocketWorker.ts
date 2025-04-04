@@ -320,7 +320,6 @@ onconnect = function (event: MessageEvent) {
       // Transmits data from proxies to active socket loader
       case WorkerTask.Send: {
         const kv = e.data.split(/\:/g);
-        const id = socketLoader.getId();
         /** 
          * Define data and target active stompjs client for transmission
          * Split into three as input has its own delimiter
@@ -328,12 +327,12 @@ onconnect = function (event: MessageEvent) {
          * @example
          * `user:7` -> `SEND:user:7`
          */
-        const workerRes = [id, kv[1]].join(':');
         const target = SocketLoader.getLoaded();
         if (target) {
           if (!(target instanceof SocketLoader)) {
             throw new Error('No SocketLoaders');
           }
+          const workerRes = [target.getId(), kv[1]].join(':');
           target.port.postMessage(workerRes);
         }
         break;

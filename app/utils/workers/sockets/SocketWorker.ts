@@ -266,34 +266,43 @@ onconnect = function (event: MessageEvent) {
 
         waitOperational.then((kill) => {
           if (kill) {
+            console.info("Killed");
+            socketLoader.remove();
+            console.info(SocketLoader.getCarriers());
             const carrierCount = SocketLoader.getCarriers().length;
 
-            if (socketLoader.loaded && carrierCount === 0) {
-              const body = JSON.stringify({ sighted: kv[2] || 0 });
-              // TODO: Implement db logic in API and prevent external hits
-
-              // navigator.sendBeacon("/api/v1/update-rates", body);
-            }
+            // TODO: Implement db logic in API and prevent external hits
+            // navigator.sendBeacon("/api/v1/update-rates", body);
+            // if (socketLoader.loaded && carrierCount === 0) {
+            //   const body = JSON.stringify({ sighted: kv[2] || 0 });
+            // }
 
             // Delegate rates and initialize stompjs to another client
             if (socketLoader.loaded && carrierCount >= 1) {
+              // Initialize local-scoped anyLoaded for updated val
+              const attemptLoad = !SocketLoader.anyLoaded();
+              console.log(attemptLoad);
               if (Object.is(socketLoader, SocketLoader.focused) && SocketLoader.lastFocused instanceof SocketLoader) {
                 if (SocketLoader.lastFocused !== null) {
+                  console.info('To last focused');
                   // Delegate to last focused
-                  SocketLoader.lastFocused.port.postMessage(!anyLoaded);
+                  SocketLoader.lastFocused.port.postMessage(attemptLoad);
                   SocketLoader.lastFocused.setLoaded(true);
                 }
               } else if (!Object.is(socketLoader, SocketLoader.focused) && SocketLoader.focused !== null) {
                 // Delegate to focused
-                SocketLoader.focused.port.postMessage(!anyLoaded);
+                console.info('To focused');
+                SocketLoader.focused.port.postMessage(attemptLoad);
                 SocketLoader.focused.setLoaded(true);
               } else if (SocketLoader.connected > 1) {
                 // Delegate to last carrier
+                console.info('To any');
                 const target = SocketLoader.delegateToFirst();
                 target.port.postMessage(anyLoaded);
               }
             }
           } else {
+            console.info('Recovered');
           }
         })
 

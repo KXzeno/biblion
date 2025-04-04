@@ -319,6 +319,9 @@ onconnect = function (event: MessageEvent) {
       }
       // Transmits data from proxies to active socket loader
       case WorkerTask.Send: {
+        const kv = e.data.split(/\:/g);
+        const id = socketLoader.getId();
+        const data = [id, kv[1]].join(':');
         /** 
          * Define data and target active stompjs client for transmission
          * Split into three as input has its own delimiter
@@ -326,7 +329,7 @@ onconnect = function (event: MessageEvent) {
          * @example
          * `user:7` -> `SEND:user:7`
          */
-        const workerRes: string = e.data.slice(5);
+        const workerRes: string = data;
         const target = SocketLoader.getLoaded();
         if (target) {
           if (!(target instanceof SocketLoader)) {

@@ -148,7 +148,7 @@ export default function WebSocket(props: SocketProviderProps) {
        * Ostensibly, using unload state would look feasible, but it's
        * less performant, invoke at certain states, or not invoke at all
        *
-       * @see {@link {https://developer.chrome.com/docs/web-platform/page-lifecycle-api#developer-recommendations-for-each-state}}
+       * @see {@link https://developer.chrome.com/docs/web-platform/page-lifecycle-api#developer-recommendations-for-each-state}
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#event_type}
        */
 
@@ -167,6 +167,40 @@ export default function WebSocket(props: SocketProviderProps) {
       window.addEventListener("focus", focusHandler);
       // window.onbeforeunload = unloadHandler;
       // window.onfocus = focusHandler;
+    } else {
+      // Initialize stompjs client on browsers with no SharedWorker support
+      const stompClient = new ColligateWebSocket({
+        endpoint: C_ENDPOINT,
+        destination: C_DESTINATION,
+        broadcast: C_BROADCAST,
+      });
+
+      stompClient.handleConnect({
+        extFn() {
+        },
+        intFn(content) {
+          dispatch({ type: ActionType.Signal, payload: { signal: content } });
+          nonceRates = Number.parseInt(content.split(/\-/)[1]);
+          try {
+            fetch(DISCORD_WH_ENDPOINT as string, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                content: `${content}`,
+              }),
+            });
+          } catch (e) {
+            console.error(e);
+          }
+        },
+      });
+
+      stompClient.handleErrors();
+      stompClient.activate();
+
+      dispatch({ type: ActionType.Client, payload: { client: stompClient } });
     }
 
     // Cleanup

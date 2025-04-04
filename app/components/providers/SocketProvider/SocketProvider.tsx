@@ -62,6 +62,9 @@ export default function WebSocket(props: SocketProviderProps) {
     // Reference to client for unload event handling
     let nonceRates: number = 0;
 
+    // Set id for this client
+    const id = crypto.randomUUID();
+
     // Execute if browser has web worker accessibility
     if (!!window.SharedWorker) {
       const workerOptions: WorkerOptions = {
@@ -69,9 +72,8 @@ export default function WebSocket(props: SocketProviderProps) {
         type: "module",
       }
 
-      // Initialize a worker and worker id that exists on mount
+      // Initialize worker
       const nonceWorker = new SharedWorker("workers/SocketWorker.js", workerOptions);
-      const id = crypto.randomUUID();
 
       // Initialize a named object containing worker definitions
       const nonceCarrier = { worker: nonceWorker, id };

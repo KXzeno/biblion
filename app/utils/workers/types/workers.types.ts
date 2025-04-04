@@ -4,6 +4,7 @@ export interface SharedWorkerCarrier {
 }
 
 export enum SocketWorkerEvent {
-  Unload = "DISCONNECT",
+  Terminate = "DISCONNECT",
   Focus = "FOCUS",
+  KeepAlive = "KEEPALIVE",
 }

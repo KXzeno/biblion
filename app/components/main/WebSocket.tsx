@@ -18,6 +18,7 @@ export default function WebSocket() {
 
   return (
     <div>
+      <h1>{`SHARED WORKER IS ${(typeof window !== 'undefined' && !!window.SharedWorker) ? 'SUPPORTED' : 'NOT SUPPORTED'}`}</h1>
       <h1>STOMP WebSocket{client !== null ? ' CONNECTED' : ''}</h1>
       <input 
         type="text"

@@ -64,6 +64,7 @@ export default function WebSocket(props: SocketProviderProps) {
 
     // Set id for this client
     const id = crypto.randomUUID();
+    dispatch({ type: ActionType.Carrier, payload: { carrier: { worker: null, id } } });
 
     // Execute if browser has web worker accessibility
     if (!!window.SharedWorker) {
@@ -138,7 +139,10 @@ export default function WebSocket(props: SocketProviderProps) {
           case 'object': {
             // Handle keep-operational request
             if ('keepAlive' in e.data) {
-              setTimeout(() => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.KeepAlive), 500);
+              setTimeout(() => {
+                handleWorkerEvent(nonceCarrier, SocketWorkerEvent.KeepAlive);
+                // window.addEventListener("beforeunload", )
+              }, 500);
             }
             break;
           }
@@ -147,8 +151,9 @@ export default function WebSocket(props: SocketProviderProps) {
       };
 
       /**
-       * Ostensibly, using unload state would look feasible, but it's
-       * less performant, invoke at certain states, or not invoke at all
+       * Ostensibly, using unload state would look feasible, 
+       * but it's less performant, invoke at certain states, 
+       * or not invoke at all—usually for mobile browsers
        *
        * @see {@link https://developer.chrome.com/docs/web-platform/page-lifecycle-api#developer-recommendations-for-each-state}
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#event_type}

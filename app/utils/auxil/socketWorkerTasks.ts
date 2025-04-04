@@ -71,7 +71,6 @@ export function socketProviderReducer(state: ReducerState, action: ReducerAction
         throw new Error('No pending signal defined in payload');
       }
       return { ...state, pendingSignal: action.payload.pendingSignal };
-
     }
     default: throw new Error('The action type did not match');
   }

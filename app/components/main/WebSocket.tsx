@@ -14,7 +14,6 @@ export default function WebSocket() {
     if (client !== null && client.initialized) {
       sendFromProxy();
     }
-    console.log('test');
   }, [pendingSignal]);
 
   return (

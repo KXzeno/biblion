@@ -223,6 +223,12 @@ export default function WebSocket(props: SocketProviderProps) {
       }
       port.postMessage(`SEND:${state.rates}`);
       dispatch({ type: ActionType.Rate, payload: { rates: "" } });
+    } else {
+      // For mobile
+      if (state.client) {
+        state.client.send({ sighted: `${state.carrier.id}:${state.rates}` });
+        dispatch({ type: ActionType.Rate, payload: { rates: "" } });
+      }
     }
   }
 

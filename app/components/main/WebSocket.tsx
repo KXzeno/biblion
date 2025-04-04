@@ -9,6 +9,7 @@ import { ActionType } from "../providers/SocketProvider/SocketProvider.types";
 export default function WebSocket() {
   const { send, signals, rates, client, sendFromProxy, pendingSignal } = React.useContext(SocketContext);
   const { dispatch } = React.useContext(SocketDispatchContext);
+  const [ supportsSharedWorker, setSupportsSharedWorker ] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (client !== null && client.initialized) {
@@ -16,9 +17,17 @@ export default function WebSocket() {
     }
   }, [pendingSignal]);
 
+  React.useEffect(() => {
+    if (!(typeof window === 'undefined')) {
+      if (!!window.SharedWorker) {
+        setSupportsSharedWorker(true);
+      }
+    }
+  }, []);
+
   return (
     <div>
-      <h1>{`SHARED WORKER IS ${(typeof window !== 'undefined' && !!window.SharedWorker) ? 'SUPPORTED' : 'NOT SUPPORTED'}`}</h1>
+      <h1>{`SHARED WORKER IS ${(supportsSharedWorker) ? 'SUPPORTED' : 'NOT SUPPORTED'}`}</h1>
       <h1>STOMP WebSocket{client !== null ? ' CONNECTED' : ''}</h1>
       <input 
         type="text"

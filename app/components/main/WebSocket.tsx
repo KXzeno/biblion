@@ -13,7 +13,6 @@ export default function WebSocket() {
 
   React.useEffect(() => {
     if (client !== null && client.initialized) {
-      sendFromProxy();
     }
   }, [pendingSignal]);
 
@@ -44,7 +43,7 @@ export default function WebSocket() {
           }}
         />
         <button 
-          onClick={send}
+          type="submit"
         >
           Send
         </button>

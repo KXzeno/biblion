@@ -8,6 +8,7 @@ class SocketLoader {
   public port: MessagePort;
   public loaded: boolean = false;
   private id: string | null = null;
+  private scheduledForInop: { loader: boolean, client: boolean } = { loader: false, client: false };
   public static connected: number = 0;
   public static focused: SocketLoader | null = null;
   public static lastFocused: SocketLoader | null = null;
@@ -91,6 +92,57 @@ class SocketLoader {
   }
 
   /**
+   * Schedules or removes an existing schedule 
+   * for detachment from the worker's tracking
+   *
+   * Invoked within the worker task 
+   * 'KeepAlive' and 'Disconnect'
+   *
+   * @param scheduler - the new keep alive state
+   */
+  public scheduleInop(scheduler: { client?: boolean, loader?: boolean }): void {
+    if (scheduler.client === undefined && scheduler.loader === undefined) {
+      throw new Error('Scheduler undefined');
+    }
+
+    if (typeof scheduler.loader === 'boolean') {
+      this.scheduledForInop.loader = scheduler.loader;
+    }
+
+    if (typeof scheduler.client === 'boolean') {
+      this.scheduledForInop.client = scheduler.client;
+    }
+  }
+
+  /**
+   * Checks the loaders `scheduledForInop` state
+   *
+   * @returns true if a scheduler exists, else false
+   */
+  public isScheduledForInop(): boolean {
+    let isScheduled = false;
+
+    if (this.scheduledForInop.loader && this.scheduledForInop.client === false) {
+      isScheduled = true;
+    }
+
+    if (this.scheduledForInop.loader && this.scheduledForInop.client) {
+      isScheduled = true;
+    }
+
+    return isScheduled;
+  }
+
+  /**
+   * Checks if the scheduler is resolved
+   *
+   * @returns true if resolved, else false
+   */
+  public keepAlive(): boolean {
+    return !(this.scheduledForInop.loader && this.scheduledForInop.client);
+  }
+
+  /**
    * Gets the carriers
    *
    * @returns a clone of the SocketLoader collection
@@ -138,6 +190,7 @@ enum WorkerTask {
   Focus = "FOCUS",
   Disconnect = "DISCONNECT",
   Send = "SEND",
+  KeepAlive = "KEEPALIVE",
 }
 
 // Implement worker's connect handler
@@ -196,44 +249,63 @@ onconnect = function (event: MessageEvent) {
       }
       // Removes from active loaders and signals database / cookie updates
       case WorkerTask.Disconnect: {
-        socketLoader.remove();
-        const carrierCount = SocketLoader.getCarriers().length;
+        const scheduledForInop = socketLoader.isScheduledForInop();
 
-        if (socketLoader.loaded && carrierCount === 0) {
-          const body = JSON.stringify({ sighted: kv[2] || 0 });
-          console.log(body);
-
-          // TODO: Implement db logic in API and prevent external hits
-          fetch("https://biblion.karnovah.com/api/v1/update-rates", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body,
-            keepalive: true,
-          })
-            .then((res) => console.log(res))
-            .catch(exc => console.error(exc));
+        if (scheduledForInop) {
+          break;
         }
+        socketLoader.scheduleInop({ loader: true });
 
-        // Delegate rates and initialize stompjs to another client
-        if (socketLoader.loaded && carrierCount >= 1) {
-          if (Object.is(socketLoader, SocketLoader.focused) && SocketLoader.lastFocused instanceof SocketLoader) {
-            if (SocketLoader.lastFocused !== null) {
-              // Delegate to last focused
-              SocketLoader.lastFocused.port.postMessage(!anyLoaded);
-              SocketLoader.lastFocused.setLoaded(true);
+        const waitOperational = new Promise<boolean>((r,) => {
+          socketLoader.port.postMessage({ keepAlive: 1 });
+          setTimeout(() => {
+            const kill = socketLoader.keepAlive();
+            r(kill);
+          }, 1500);
+        });
+
+        waitOperational.then((kill) => {
+          if (kill) {
+            const carrierCount = SocketLoader.getCarriers().length;
+
+            if (socketLoader.loaded && carrierCount === 0) {
+              const body = JSON.stringify({ sighted: kv[2] || 0 });
+              // TODO: Implement db logic in API and prevent external hits
+
+              // navigator.sendBeacon("/api/v1/update-rates", body);
             }
-          } else if (!Object.is(socketLoader, SocketLoader.focused) && SocketLoader.focused !== null) {
-            // Delegate to focused
-            SocketLoader.focused.port.postMessage(!anyLoaded);
-            SocketLoader.focused.setLoaded(true);
+
+            // Delegate rates and initialize stompjs to another client
+            if (socketLoader.loaded && carrierCount >= 1) {
+              if (Object.is(socketLoader, SocketLoader.focused) && SocketLoader.lastFocused instanceof SocketLoader) {
+                if (SocketLoader.lastFocused !== null) {
+                  // Delegate to last focused
+                  SocketLoader.lastFocused.port.postMessage(!anyLoaded);
+                  SocketLoader.lastFocused.setLoaded(true);
+                }
+              } else if (!Object.is(socketLoader, SocketLoader.focused) && SocketLoader.focused !== null) {
+                // Delegate to focused
+                SocketLoader.focused.port.postMessage(!anyLoaded);
+                SocketLoader.focused.setLoaded(true);
+              } else if (SocketLoader.connected > 1) {
+                // Delegate to last carrier
+                const target = SocketLoader.delegateToFirst();
+                target.port.postMessage(anyLoaded);
+              }
+            }
           } else {
-            // Delegate to last carrier
-            const target = SocketLoader.delegateToFirst();
-            target.port.postMessage(anyLoaded);
           }
-        }
+        })
+
+        waitOperational.finally(() => {
+          socketLoader.scheduleInop({ loader: false, client: false })
+        });
+        break;
+      }
+      // Disconnect task at its core initiates on `hidden`
+      // state, thus a KeepAlive task is expected from operational clients
+      case WorkerTask.KeepAlive: {
+        socketLoader.scheduleInop({ client: true });
         break;
       }
       // Transmits data from proxies to active socket loader

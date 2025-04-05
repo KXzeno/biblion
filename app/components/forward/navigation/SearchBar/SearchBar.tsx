@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 import { DefinitionsContext, DefinitionsDispatchContext } from '@/providers/DefinitionsProvider';
-import { ActionType } from './SearchBar.types';
+import { SocketContext, SocketDispatchContext } from "@/providers/SocketProvider";
+// import { ActionType as SocketActionType } from "@/providers/SocketProvider/SocketProvider.types";
+import { ActionType as SearchBarActionType} from './SearchBar.types';
 import './SearchBar.css';
 
 /**
@@ -16,7 +18,10 @@ import './SearchBar.css';
 export default function SearchBar(): React.ReactNode {
   // Extract relevant states from context
   const { formState, reducState, formAction, formStatePending } = React.useContext(DefinitionsContext);
-  const { dispatch } = React.useContext(DefinitionsDispatchContext);
+  const { dispatch: definitionsDispatch } = React.useContext(DefinitionsDispatchContext);
+  // const { dispatch: socketDispatch } = React.useContext(SocketDispatchContext);
+
+  const { send, client, sendFromProxy, pendingSignal } = React.useContext(SocketContext);
 
   // Set state for input invalidation
   const [isInvalidInput, setIsInvalidInput] = React.useState<boolean>(false);
@@ -32,12 +37,13 @@ export default function SearchBar(): React.ReactNode {
       // Check if the lone data value is a custom error object
       if (target instanceof Object && Object.keys(target).includes('error')) {
         // Inject the error object and update invalid state
-        dispatch({ type: ActionType.Revalidate });
-        dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: [target] as object[] } });
+        definitionsDispatch({ type: SearchBarActionType.Revalidate });
+        definitionsDispatch({ type: SearchBarActionType.Inject, payload: { ...reducState, rawData: [target] as object[] } });
         setIsInvalidInput(true);
         return;
       }
       // Cease router logic and show similar field
+      send();
       return;
     }
 
@@ -45,8 +51,8 @@ export default function SearchBar(): React.ReactNode {
     if (typeof formState.rawData[1] !== 'string') {
       // Inject payload with the similar fields to process in JSX
       /** State is not restored due to disparate component trees */
-      dispatch({ type: ActionType.Revalidate });
-      dispatch({ type: ActionType.Inject, payload: { ...reducState, rawData: formState.rawData as object[]} });
+      definitionsDispatch({ type: SearchBarActionType.Revalidate });
+      definitionsDispatch({ type: SearchBarActionType.Inject, payload: { ...reducState, rawData: formState.rawData as object[]} });
 
       // Parse and remove first element, a custom object, that stores the form input
       const word = Object.values(formState.rawData[0])[0].toLowerCase();
@@ -75,9 +81,16 @@ export default function SearchBar(): React.ReactNode {
        * ```
        */
       window.sessionStorage.setItem("injected", JSON.stringify(formState.rawData));
+      send();
       router.push(`/dictionary/${word}`);
     }
   }, [formState.rawData]);
+
+  React.useEffect(() => {
+    if (client !== null && client.initialized) {
+      sendFromProxy();
+    }
+  }, [pendingSignal]);
 
   return (
     <div className='search-bar-ctr'>
@@ -87,8 +100,9 @@ export default function SearchBar(): React.ReactNode {
           onSubmit={(e) => {
             // Revalidate invalid input
             setIsInvalidInput(false);
-            dispatch({ type: ActionType.Revalidate });
-            dispatch({ type: ActionType.Query, payload: { ...reducState, input: reducState.input } });
+            definitionsDispatch({ type: SearchBarActionType.Revalidate });
+            definitionsDispatch({ type: SearchBarActionType.Query, payload: { ...reducState, input: reducState.input } });
+            send();
             e.stopPropagation();
           }}
         >
@@ -97,8 +111,8 @@ export default function SearchBar(): React.ReactNode {
             name='word'
             value={reducState.input}
             onChange={(e) => {
-              dispatch({
-                type: ActionType.Input,
+              definitionsDispatch({
+                type: SearchBarActionType.Input,
                 payload: { ...reducState, input: e.target.value },
               });
             }}

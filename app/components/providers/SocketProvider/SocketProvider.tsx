@@ -79,6 +79,9 @@ export default function WebSocket(props: SocketProviderProps) {
       // Initialize a named object containing worker definitions
       const nonceCarrier = { worker: nonceWorker, id };
 
+      // Rebound on desktop when tabs are closed indirectly
+      const imperfectRebound = () => handleWorkerEvent(nonceCarrier, SocketWorkerEvent.Terminate, `${nonceRates}`);
+
       // Due to a mount-only persistence, preserve the carrier via reducer state
       dispatch({ type: ActionType.Carrier, payload: { carrier: nonceCarrier } });
 
@@ -140,8 +143,9 @@ export default function WebSocket(props: SocketProviderProps) {
             // Handle keep-operational request
             if ('keepAlive' in e.data) {
               setTimeout(() => {
+                window.removeEventListener("beforeunload", imperfectRebound);
                 handleWorkerEvent(nonceCarrier, SocketWorkerEvent.KeepAlive);
-                // window.addEventListener("beforeunload", )
+                window.addEventListener("beforeunload", imperfectRebound);
               }, 500);
             }
             break;

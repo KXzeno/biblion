@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import DefinitionsProvider from '@/providers/DefinitionsProvider';
+import { DefinitionsProvider } from '@/providers';
 import Term from '@/forward/dictionary';
 import { SuccessfulResponse } from '../actions/types/query.types';
 

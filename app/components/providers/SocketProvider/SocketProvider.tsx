@@ -22,7 +22,7 @@ export const SocketContext: React.Context<ContextData> = React.createContext({
   send: () => {},
   signals: [""],
   pendingSignal: "",
-  rates: "",
+  rates: "1",
   sendFromProxy: () => {},
   client: null as ColligateWebSocket | null,
 });
@@ -39,7 +39,7 @@ export default function WebSocket(props: SocketProviderProps) {
     carrier: { worker: null, id: null },
     client: null,
     signals: [],
-    rates: "",
+    rates: "1",
     pendingSignal: "",
   }
 
@@ -102,6 +102,7 @@ export default function WebSocket(props: SocketProviderProps) {
 
               stompClient.handleConnect({
                 extFn() {
+                  console.info('Connected');
                   // TODO: Investigate inutility
                 },
                 intFn(content) {
@@ -229,7 +230,7 @@ export default function WebSocket(props: SocketProviderProps) {
       const { port } = state.carrier.worker;
       if (state.client) {
         state.client.send({ sighted: `${state.carrier.id}:${state.rates}` });
-        dispatch({ type: ActionType.Rate, payload: { rates: "" } });
+        // dispatch({ type: ActionType.Rate, payload: { rates: "" } });
         return;
       }
       port.postMessage(`SEND:${state.rates}`);
@@ -238,7 +239,7 @@ export default function WebSocket(props: SocketProviderProps) {
       // For mobile
       if (state.client) {
         state.client.send({ sighted: `${state.carrier.id}:${state.rates}` });
-        dispatch({ type: ActionType.Rate, payload: { rates: "" } });
+        // dispatch({ type: ActionType.Rate, payload: { rates: "" } });
       }
     }
   }

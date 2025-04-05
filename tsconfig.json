@@ -22,10 +22,15 @@
     "paths": {
       "@/*": ["./*"],
       "@/forward/*": ["./components/forward/*"],
+      "@/forward": ["./components/forward/"],
       "@/main/*": ["./components/main/*"],
+      "@/main": ["./components/main/"],
       "@/utils/*": ["./utils/*"],
+      "@/utils": ["./utils/"],
       "@/actions/*": ["./components/actions/*"],
+      "@/actions": ["./components/actions/"],
       "@/providers/*": ["./components/providers/*"],
+      "@/providers": ["./components/providers/"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

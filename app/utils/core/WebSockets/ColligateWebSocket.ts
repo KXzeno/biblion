@@ -65,7 +65,6 @@ export default class ColligateWebSocket {
 
     this.client.onConnect = () => {
       extFn();
-      console.log('Connected.');
       this.initialized = true;
       this.client.subscribe(this.broadcast as string, (data) => {
         const content = JSON.parse(data.body).content;

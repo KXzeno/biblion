@@ -93,8 +93,8 @@ export default function WebSocket(props: SocketProviderProps) {
               // Initialize stompjs client via abstraction from ColligateWebSocket
               const stompClient = new ColligateWebSocket({
                 endpoint: C_ENDPOINT,
-                destination: C_DESTINATION,
-                broadcast: C_BROADCAST,
+                destination: `${C_DESTINATION}${id}`,
+                broadcast: `${C_BROADCAST}${id}`,
               });
 
               stompClient.handleConnect({
@@ -178,8 +178,8 @@ export default function WebSocket(props: SocketProviderProps) {
       // Initialize stompjs client on browsers with no SharedWorker support
       const stompClient = new ColligateWebSocket({
         endpoint: C_ENDPOINT,
-        destination: C_DESTINATION,
-        broadcast: C_BROADCAST,
+        destination: `${C_DESTINATION}${id}`,
+        broadcast: `${C_BROADCAST}${id}`,
       });
 
       stompClient.handleConnect({

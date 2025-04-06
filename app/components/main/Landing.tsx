@@ -4,6 +4,8 @@ import React from 'react';
 
 import SearchBar from '@/forward/navigation/SearchBar';
 import DefinitionsProvider from '@/providers/DefinitionsProvider';
+import { LandingHeader } from '@/forward/landing';
+import { NavBar } from '@/forward/navigation';
 
 /**
  * The landing page
@@ -13,6 +15,8 @@ import DefinitionsProvider from '@/providers/DefinitionsProvider';
 export default function Landing(): React.ReactNode {
   return (
     <DefinitionsProvider>
+      <NavBar />
+      <LandingHeader />
       <SearchBar />
     </DefinitionsProvider>
   );

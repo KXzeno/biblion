@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --font-luxurious-roman: 'Luxurious Roman', serif;
+}
+
+.header-wrapper {
+  @apply relative flex justify-self-center border-white w-[3rem];
+}
+
+.header {
+  @apply font-luxurious-roman absolute left-[50%] -translate-x-[50%] translate-y-[0.7rem] text-[3rem];
+}

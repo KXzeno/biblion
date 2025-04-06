@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .search-bar-ctr {
-  @apply flex flex-col w-screen h-screen border-gray-800 border-8 text-center;
+  @apply flex flex-col w-[29rem] h-[31.5rem] text-center justify-self-center;
 }
 
 .form-ctr {
@@ -18,7 +18,7 @@
 }
 
 .word-input {
-  @apply pl-2 h-5 outline-none disabled:text-gray-700;
+  @apply pl-2 h-5 outline-none disabled:text-gray-700 select-none;
 }
 
 .invalid-field {
@@ -38,7 +38,7 @@
 }
 
 .similar-fields-grid > p > a {
-  @apply text-cyan-600 hover:text-violet-900 ;
+  @apply text-cyan-300 hover:text-violet-900 ;
 }
 
 .similar-fields-grid {

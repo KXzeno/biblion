@@ -1,8 +1,13 @@
-import SearchBar from './SearchBar/SearchBar';
+import SearchBar from "./SearchBar";
+import NavBar from "./NavBar";
 import type { ReducerState, ReducerAction } from './SearchBar/SearchBar.types';
 
 export {
   SearchBar, 
-  type ReducerState as SearchBarReducState, 
-  type ReducerAction as SearchBarReducAction,
+  NavBar,
+}
+
+export type {
+  ReducerState as SearchBarReducState, 
+  ReducerAction as SearchBarReducAction,
 }

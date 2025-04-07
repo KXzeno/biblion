@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 import { DefinitionsContext, DefinitionsDispatchContext } from '@/providers/DefinitionsProvider';
-import { SocketContext, SocketDispatchContext } from "@/providers/SocketProvider";
+import { SocketContext, /**SocketDispatchContext*/ } from "@/providers/SocketProvider";
 // import { ActionType as SocketActionType } from "@/providers/SocketProvider/SocketProvider.types";
 import { ActionType as SearchBarActionType} from './SearchBar.types';
 import './SearchBar.css';

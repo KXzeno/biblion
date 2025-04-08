@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --font-quintessential: 'Quintessential', sans-serif;
   --font-luxurious-roman: 'Luxurious Roman', serif;
+  --font-lekton: 'Lekton', sans-serif;
 }
 
 .header-wrapper {
@@ -9,5 +11,5 @@
 }
 
 .header {
-  @apply font-luxurious-roman absolute left-[50%] -translate-x-[50%] translate-y-[0.7rem] text-[3rem];
+  @apply font-lekton absolute left-[50%] -translate-x-[50%] translate-y-[1.7rem] text-[3rem] w-[17rem] text-center;
 }

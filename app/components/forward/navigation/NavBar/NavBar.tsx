@@ -1,17 +1,21 @@
 import React from 'react';
 
-import { ProfileIcon } from '@/forward/icons/navIcons';
+import { ProfileIcon, LogoIcon } from '@/forward/icons/navIcons';
 import "./NavBar.css";
 
 export default function NavBar() {
 
   return (
-    <nav className='flex border-slate-700 border-1'>
-      <ul className='grid grid-cols-[100%_100%_100%_100%] text-center text-sm'>
-        <li className='content-center'>Yo</li>
-        <li className='content-center'>Yo</li>
-        <li className='content-center'>Yo</li>
-        <li className='justify-self-end'><ProfileIcon svgClassName='scale-[0.8]' /></li>
+    <nav className='relative flex w-[37rem] justify-self-center'>
+      <ul className='grid grid-cols-[30%_20%_20%_30%] text-center text-sm justify-self-center w-full'>
+        <li className='inline-flex justify-self-start items-center'>
+          <LogoIcon /><div className='font-luxurious-roman'>Biblion</div>
+        </li>
+        <li className='content-center'>Item 1</li>
+        <li className='content-center'>Item 2</li>
+        <li className='justify-self-end content-center'>
+          <ProfileIcon svgClassName='scale-[0.8]' />
+        </li>
       </ul>
     </nav>
   )

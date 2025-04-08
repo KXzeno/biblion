@@ -11,8 +11,8 @@ export default function NavBar() {
         <li className='inline-flex justify-self-start items-center'>
           <LogoIcon /><div className='font-luxurious-roman'>Biblion</div>
         </li>
-        <li className='content-center'>Item 1</li>
-        <li className='content-center'>Item 2</li>
+        <li dir="ltr" className='content-center self-center h-[53%] rounded-s-xl bg-[#604652]/10'>Item 1</li>
+        <li dir="rtl" className='content-center self-center h-[53%] rounded-s-xl bg-[#604652]/10'>Item 2</li>
         <li className='justify-self-end content-center'>
           <ProfileIcon svgClassName='scale-[0.8]' />
         </li>

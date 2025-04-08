@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+h3 {
+  @apply text-sm;
+}
+
 .search-bar-ctr {
   @apply flex flex-col w-[29rem] h-[31.5rem] text-center justify-self-center;
 }

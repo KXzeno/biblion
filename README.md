@@ -5,10 +5,11 @@
 ---
 
 #### Hitlist
-🗡 Finalize implementation of socket interactions
 
 🗡 Stylize each route
 
 🗡 Create sample lists with a practice feature on front page
 
 🗡 Implement providers for auth and user then properly wire UI to guests/users
+
+🗡 Use XFF headers in middleware for load balancing strategies

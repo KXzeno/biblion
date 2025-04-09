@@ -38,7 +38,7 @@ h3 {
 }
 
 .similar-fields-grid > p > a {
-  @apply text-cyan-300 hover:text-violet-900 ;
+  @apply text-cyan-300 hover:text-violet-500 ;
 }
 
 .similar-fields-grid {

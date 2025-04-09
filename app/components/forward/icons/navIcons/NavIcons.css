@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+.logo {
+  @apply float-left;
+  -webkit-user-drag: none;
+}

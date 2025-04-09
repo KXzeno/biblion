@@ -9,12 +9,8 @@ h3 {
 }
 
 .form-ctr {
-  @apply inline-flex justify-center items-center bg-slate-900 h-7 w-64 self-center translate-y-34 rounded-lg border-1 border-violet-900 text-violet-300;
+  @apply inline-flex justify-center items-center bg-[#604652]/40 h-7 w-64 self-center translate-y-34 rounded-lg border-1 border-violet-900 text-violet-300 text-sm;
   
-}
-
-.form-ctr {
-  @apply inline-flex justify-center items-center bg-slate-900 h-7 w-64 self-center translate-y-34 rounded-lg border-1 border-violet-900 text-violet-300;
 }
 
 .form-ctr:has(.word-input:is(:disabled)) {

@@ -6,7 +6,7 @@
 }
 
 @utility link-state {
-  @apply hover:text-[#F5C45E] hover:cursor-pointer;
+  @apply hover:text-[#D2FF72] hover:cursor-pointer;
 }
 
 .navbar {
@@ -26,7 +26,7 @@
 }
 
 .menu-nav-item {
-  @apply content-center self-center h-[53%] rounded-s-xl bg-[#604652]/10 font-lancelot;
+  @apply content-center self-center h-[53%] rounded-s-xl bg-[#604652]/40 font-lancelot;
 }
 
 .menu-nav-item > a {

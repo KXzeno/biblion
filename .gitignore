@@ -56,7 +56,7 @@ app/test/
 MANIFEST.MF
 app/utils/**/*.class
 app/utils/**/*.java
-libs/**/*.jar
+lib/**/*.jar
 
 # workers
 public/workers/*

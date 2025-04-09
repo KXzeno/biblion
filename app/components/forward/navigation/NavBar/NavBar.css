@@ -36,3 +36,7 @@
 .profile-nav-item {
   @apply justify-self-end content-center hover:cursor-pointer;
 }
+
+.ver-tag {
+  @apply absolute top-[50%] left-[22.5%] font-lancelot text-xl;
+}

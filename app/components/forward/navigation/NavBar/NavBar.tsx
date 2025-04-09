@@ -2,15 +2,20 @@ import React from 'react';
 import Link from 'next/link';
 
 import { ProfileIcon, LogoIcon } from '@/forward/icons/navIcons';
+import { Version } from '@/forward/marks';
 import "./NavBar.css";
 
 export default function NavBar() {
 
   return (
     <nav className='navbar'>
+      <aside className='ver-tag'>
+        <Version />
+      </aside>
       <ul className='nav-items'>
         <li className='logo-nav-item'>
-          <LogoIcon /><span>Biblion</span>
+          <LogoIcon />
+          <span>Biblion</span>
         </li>
         <li dir="ltr" className='menu-nav-item'><Link href="#example">Example</Link></li>
         <li dir="rtl" className='menu-nav-item'><Link href="/me/lists">Lists</Link></li>

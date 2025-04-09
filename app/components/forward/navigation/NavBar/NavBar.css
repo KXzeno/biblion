@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  --font-luxurious-roman: 'Luxurious Roman', serif;
+  --font-lancelot: 'Lancelot', sans-serif;
+}
+
+@utility link-state {
+  @apply hover:text-[#F5C45E] hover:cursor-pointer;
+}
+
+.navbar {
+  @apply relative flex w-[37rem] justify-self-center;
+}
+
+.nav-items {
+  @apply grid grid-cols-[30%_20%_20%_30%] text-center text-sm justify-self-center w-full;
+}
+
+.logo-nav-item {
+  @apply inline-flex justify-self-start items-center;
+}
+
+.logo-nav-item > span {
+  @apply font-luxurious-roman select-none;
+}
+
+.menu-nav-item {
+  @apply content-center self-center h-[53%] rounded-s-xl bg-[#604652]/10 font-lancelot;
+}
+
+.menu-nav-item > a {
+  @apply link-state;
+}
+      
+.profile-nav-item {
+  @apply justify-self-end content-center hover:cursor-pointer;
+}

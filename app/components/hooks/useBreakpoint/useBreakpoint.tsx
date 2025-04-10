@@ -14,9 +14,9 @@ export default function useBreakpoint({
     const handleResizeUpdates = () => {
       const width = window.innerWidth;
       setX(() => width);
-      if (width >= breakPoint) {
+      if (width <= breakPoint) {
         setCrossed(() => true);
-      } else if (crossed) {
+      } else if (!crossed) {
         setCrossed(() => false)
       }
     };

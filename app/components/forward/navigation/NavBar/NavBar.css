@@ -3,14 +3,15 @@
 @theme {
   --font-luxurious-roman: 'Luxurious Roman', serif;
   --font-lancelot: 'Lancelot', sans-serif;
+  --breakpoint-sm+: 628px;
 }
 
 @utility link-state {
-  @apply hover:text-[#D2FF72] hover:cursor-pointer;
+  @apply hover:text-[#FEBA17] hover:cursor-pointer;
 }
 
 .navbar {
-  @apply relative flex w-[37rem] justify-self-center;
+  @apply relative flex w-[37rem] justify-self-center w-full;
 }
 
 .nav-items {
@@ -25,18 +26,22 @@
   @apply font-luxurious-roman select-none;
 }
 
+.menu-nav-item-wrapper {
+  @apply relative inline-grid grid-cols-2 col-span-2 left-[50%] -translate-x-[50%] self-center w-[11rem];
+}
+
 .menu-nav-item {
-  @apply content-center self-center h-[53%] rounded-s-xl bg-[#604652]/40 font-lancelot;
+  @apply h-full w-full content-center self-center h-[53%] rounded-s-xl bg-[#604652]/40 font-lancelot border-[#8E7DBE] border-1;
 }
 
 .menu-nav-item > a {
   @apply link-state;
 }
-      
+
 .profile-nav-item {
   @apply justify-self-end content-center hover:cursor-pointer;
 }
 
 .ver-tag {
-  @apply absolute top-[50%] left-[22.5%] font-lancelot text-xl;
+  @apply absolute top-[50%] left-[22.5%] font-lancelot text-xl max-sm+:invisible;
 }

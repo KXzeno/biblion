@@ -53,7 +53,9 @@ app/components/actions/append.tsx
 app/test/
 
 # java
-MANIFEST.MF
+WORKER_MANAGER_MANIFEST.MF
+VERSIONER_MANIFEST.MF
+
 app/utils/**/*.class
 app/utils/**/*.java
 lib/**/*.jar

@@ -1,6 +1,6 @@
 {
   "name": "biblion",
-  "version": "0.2.0",
+  "version": "0.5.4",
   "private": true,
   "scripts": {
     "build-workers": "tsc --project tsconfig.workers.json",

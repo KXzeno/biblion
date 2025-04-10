@@ -10,7 +10,8 @@
     "start": "npm run build-workers && next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "semver": "java -jar lib/Versioner.jar"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

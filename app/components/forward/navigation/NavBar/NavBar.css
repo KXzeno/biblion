@@ -10,16 +10,48 @@
   @apply hover:text-[#FEBA17] hover:cursor-pointer;
 }
 
-.navbar {
+@utility navbar_vp-1 {
   @apply relative flex w-[37rem] justify-self-center w-full;
 }
 
-.nav-items {
+@utility navbar_vp-2 {
+  @apply max-sm+:grid max-sm+:text-green-300;
+}
+
+@utility nav-items_vp-1 {
   @apply grid grid-cols-[30%_20%_20%_30%] text-center text-sm justify-self-center w-full;
 }
 
-.logo-nav-item {
+@utility logo-nav-item_vp-1 {
   @apply inline-flex justify-self-start items-center;
+}
+
+@utility menu-nav-item-wrapper_vp-1 {
+  @apply relative inline-grid grid-cols-2 col-span-2 left-[50%] -translate-x-[50%] self-center w-[11rem];
+}
+
+@utility menu-nav-item_vp-1 {
+  @apply h-full w-full content-center self-center h-[53%] rounded-s-xl bg-[#604652]/40 font-lancelot border-[#8E7DBE] border-1;
+}
+
+@utility provile-nav-item_vp-1 {
+  @apply justify-self-end content-center hover:cursor-pointer;
+}
+
+@utility ver-tag_vp-1 {
+  @apply absolute top-[50%] left-[22.5%] font-lancelot text-xl max-sm+:invisible;
+}
+
+.navbar {
+  @apply navbar_vp-1 navbar_vp-2;
+}
+
+.nav-items {
+  @apply nav-items_vp-1;
+}
+
+.logo-nav-item {
+  @apply logo-nav-item_vp-1;
 }
 
 .logo-nav-item > span {
@@ -27,11 +59,11 @@
 }
 
 .menu-nav-item-wrapper {
-  @apply relative inline-grid grid-cols-2 col-span-2 left-[50%] -translate-x-[50%] self-center w-[11rem];
+  @apply menu-nav-item-wrapper_vp-1;
 }
 
 .menu-nav-item {
-  @apply h-full w-full content-center self-center h-[53%] rounded-s-xl bg-[#604652]/40 font-lancelot border-[#8E7DBE] border-1;
+  @apply menu-nav-item_vp-1;
 }
 
 .menu-nav-item > a {
@@ -39,9 +71,9 @@
 }
 
 .profile-nav-item {
-  @apply justify-self-end content-center hover:cursor-pointer;
+  @apply provile-nav-item_vp-1;
 }
 
 .ver-tag {
-  @apply absolute top-[50%] left-[22.5%] font-lancelot text-xl max-sm+:invisible;
+  @apply ver-tag_vp-1;
 }

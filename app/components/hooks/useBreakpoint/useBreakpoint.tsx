@@ -11,8 +11,12 @@ export default function useBreakpoint({
   const [crossed, setCrossed] = React.useState<boolean>(false);
 
   React.useEffect(() => {
+    // Trigger logic on mount
+    const width = window.innerWidth;
+    setX(() => width);
+    setCrossed(() => width <= breakPoint);
+
     const handleResizeUpdates = () => {
-      const width = window.innerWidth;
       setX(() => width);
       if (width <= breakPoint) {
         setCrossed(() => true);

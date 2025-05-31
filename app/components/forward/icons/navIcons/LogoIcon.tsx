@@ -17,7 +17,8 @@ export default function LogoIcon({
 
   return (
     <Image 
-      src="https://67f5728cb309f00008367e83--beamish-truffle-163ac0.netlify.app/assets/biblion-logo.svg"
+      //src="https://67f5728cb309f00008367e83--beamish-truffle-163ac0.netlify.app/assets/biblion-logo.svg"
+      src="https://i.postimg.cc/XJM02gXh/biblion-logo.png"
       unoptimized={true}
       width={width}
       height={height}

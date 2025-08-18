@@ -55,35 +55,35 @@ export const puncPatterns = {
   export const markPatterns = {
     // TODO: Add class prop when defined
     glossMatcher: {
-      rgx: /(?:\{gloss\})([a-zA-Z\s]+)(?:\{\/gloss\})/g,
+      rgx: /(?:\{gloss\})([a-zA-Z\s\-]+)(?:\{\/gloss\})/g,
       replacement: "$1",
       tag: "span",
       class: "",
     },
     // TODO: Add class prop when defined
     headwordMatcherInParagraphMatcher: {
-      rgx: /(?:\{parahw\})([a-zA-Z\s]+)(?:\{\/qword\})/g,
+      rgx: /(?:\{parahw\})([a-zA-Z\s\-]+)(?:\{\/qword\})/g,
       replacement: "$1",
       tag: "span",
       class: "",
     },
     // TODO: Add class prop when defined
     phraseMatcher: {
-      rgx: /(?:\{phrase\})([a-zA-Z\s]+)(?:\{\/phrase\})/g,
+      rgx: /(?:\{phrase\})([a-zA-Z\s\-]+)(?:\{\/phrase\})/g,
       replacement: "$1",
       tag: "span",
       class: "",
     },
     // TODO: Add class prop when defined
     headwordQuoteMatcher: {
-      rgx: /(?:\{qword\})([a-zA-Z\s]+)(?:\{\/qword\})/g,
+      rgx: /(?:\{qword\})([a-zA-Z\s\-]+)(?:\{\/qword\})/g,
       replacement: "$1",
       tag: "span",
       class: "",
     },
     // TODO: Add class prop when defined
     headwordRunningTextMatcher: {
-      rgx: /(?:\{wi\})([a-zA-Z\s]+)(?:\{\/wi\})/g,
+      rgx: /(?:\{wi\})([a-zA-Z\s\-]+)(?:\{\/wi\})/g,
       replacement: "$1",
       tag: "span",
       class: "",

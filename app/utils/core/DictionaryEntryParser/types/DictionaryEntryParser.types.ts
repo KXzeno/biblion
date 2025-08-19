@@ -49,3 +49,11 @@ export interface Subentries {
 }
 
 export type ParsedPayload = Array<{ id: string, defs: Array<[string, React.ReactNode]>}>
+
+export enum PartOfSpeech {
+  Noun = "noun",
+  Adjective = "adjective",
+  Verb = "verb",
+  IntransitiveVerb = "intransitive verb",
+  TransitiveVerb = "transitive verb",
+}

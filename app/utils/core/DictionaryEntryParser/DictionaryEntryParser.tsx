@@ -9,6 +9,7 @@ import {
 import {
   StrictDefLabels,
   StrictDefMarkLabels,
+  PartOfSpeech,
   type Context,
   type Def,
   type Payload,
@@ -199,14 +200,17 @@ export default class DictionaryEntryParser {
     // Initialize carrier array
     let formatted: Array<[string, React.ReactNode]> = [];
 
+    let formatterOffset: number = 1;
+
     // FIXME: PARSED CONTEXTS HAVE UNDEFINED 
     // VALUES, AFTER OBSERVING INITIALIZED SUBENTRIES, 
     // THERE ARE UNTYPED SENSES SUCH AS "pseq". PARSED
     // OUTPUT ALSO CONTAINS UNIQUE LABELS SUCH AS "snote"
     groups = groups.filter(group => group !== undefined) as DefinitionCollection;
 
-    ((groups as DefinitionCollection).forEach(group => {
+    ((groups as DefinitionCollection).forEach((group, pos) => {
       for (let i = 0; i < group.length ; i++) {
+        // console.log(groups);
         // Initialize cache
         const arr = [];
 
@@ -217,14 +221,21 @@ export default class DictionaryEntryParser {
 
           // If cache has an item (must be the label), then parse the following item
           if (arr.length === 1) {
-            switch (arr[0]) {
-              case StrictDefLabels.Text: val = DictionaryEntryParser.formatText(val as string); break;
-              case StrictDefLabels.UsageNotes: val = DictionaryEntryParser.formatUsageNote(val as Array<DefiningText>); break;
-              case StrictDefLabels.VerbalIllustration: val = DictionaryEntryParser.formatVerbalIllustration(val as Array<DefiningText>); break;
+            if (this.isTextDef(val as PartOfSpeech | string)) {
+              switch (arr[0]) {
+                case StrictDefLabels.Text: val = DictionaryEntryParser.formatText(val as string, formatterOffset); break;
+                case StrictDefLabels.UsageNotes: val = DictionaryEntryParser.formatUsageNote(val as Array<DefiningText>); break;
+                case StrictDefLabels.VerbalIllustration: val = DictionaryEntryParser.formatVerbalIllustration(val as Array<DefiningText>); break;
+              }
+            } else {
+              formatterOffset--;
+              val = DictionaryEntryParser.formatText(val as string);
             }
+            formatterOffset++;
             arr.push(val as React.ReactNode);
             continue;
           }
+          console.log(formatterOffset);
           // If cache is empty, push this item (should be the label)
           arr.push(val as string);
         }
@@ -241,7 +252,7 @@ export default class DictionaryEntryParser {
    * @param val - the string to parse
    * @returns a React node of the transformed text
    */
-  private static formatText(val: string): React.ReactNode {
+  private static formatText(val: string, pos?: number): React.ReactNode {
     const formattedVals = [];
 
     // Make relevant composite pattern object
@@ -265,7 +276,12 @@ export default class DictionaryEntryParser {
       }
     }
     // Return the most recently updated value
-    return <div key={crypto.randomUUID()}>{formattedVals[formattedVals.length - 1]}</div>;
+    return <div 
+      key={crypto.randomUUID()}
+    >
+      {pos && <span>{pos}</span>}
+      {formattedVals[formattedVals.length - 1]}
+    </div>;
   }
 
   /**
@@ -378,5 +394,9 @@ export default class DictionaryEntryParser {
    */
   private static isAuth(token: { auth: string } | { source: string }): token is { auth: string } {
     return (token as { auth: string }).auth !== undefined && (token as { auth: string }).auth !== null;
+  }
+
+  private static isTextDef(text: PartOfSpeech | string): text is string {  
+    return !Object.values(PartOfSpeech).includes(text as PartOfSpeech);
   }
 }
